@@ -1,0 +1,1898 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Event-Tool – Dashboard</title>
+
+  <style>
+    :root{
+      --bg:#07080b;
+      --panel:#0d0f15;
+      --card:#0f121b;
+      --card2:#0b0d12;
+      --border:rgba(255,255,255,.08);
+      --muted:rgba(255,255,255,.55);
+      --text:rgba(255,255,255,.92);
+
+      --accent:#5865f2; /* indigo/neon */
+      --accent2:#7c3aed; /* violet */
+      --danger:#ef4444;
+      --ok:#22c55e;
+      --zero:#60a5fa;
+
+      --shadow: 0 12px 34px rgba(0,0,0,.55);
+      --r: 16px;
+      --r2: 14px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1200px 600px at 70% 20%, rgba(88,101,242,.18), transparent 55%),
+                  radial-gradient(900px 500px at 20% 60%, rgba(124,58,237,.12), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+      background-repeat: no-repeat;
+    }
+
+    .layout{
+      display:flex;
+      min-height:100vh;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      width:320px;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border-right: 1px solid var(--border);
+      padding:18px 16px;
+    }
+
+    .brand{
+      padding:10px 10px 14px;
+      border-bottom:1px solid var(--border);
+      margin-bottom:14px;
+    }
+    .brand h1{ margin:0; font-size:20px; letter-spacing:.2px; }
+    .brand .sub{ margin-top:6px; color:var(--muted); font-size:12px; }
+
+    .controls{
+      display:grid;
+      gap:10px;
+      margin-bottom:14px;
+    }
+    .label{ color:var(--muted); font-size:12px; margin-bottom:6px; }
+    .ctrl{
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px 10px;
+      color:var(--text);
+      width:100%;
+      outline:none;
+    }
+    .ctrl:focus{
+      border-color: rgba(88,101,242,.55);
+      box-shadow: 0 0 0 3px rgba(88,101,242,.18);
+    }
+    /* make dropdown menus dark to match theme */
+    select.ctrl {
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+    }
+
+    /* helper grids for KPI displays */
+    .grid3, .grid4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px,1fr));
+      gap: 14px;
+    }
+
+    /* KPI box styling */
+    .kpi {
+      padding: 12px 14px;
+      background: rgba(255,255,255,.02);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .kpi .k {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .kpi .v {
+      font-size: 18px;
+      font-weight: 700;
+      margin-top: 6px;
+      text-align: center;
+    }
+    /* ensure saldo value inherits styling but keeps its color classes */
+    .kpi .v.saldo { font-size: 20px; }
+
+    select.ctrl option {
+      background: var(--card2);
+      color: var(--text);
+    }
+
+    .sticky{
+      position: sticky;
+      top: 12px;
+      z-index: 5;
+      padding-top: 2px;
+      background: linear-gradient(180deg, rgba(7,8,11,.96) 0%, rgba(7,8,11,.78) 70%, rgba(7,8,11,0) 100%);
+      backdrop-filter: blur(10px);
+    }
+
+    .sidebarSection{
+      padding:12px 10px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+    }
+    .sectionTitle{
+      font-size:13px;
+      color:var(--muted);
+      margin: 0 0 10px 0;
+    }
+
+    .empList{
+      margin-top:12px;
+      max-height: calc(100vh - 330px);
+      overflow:auto;
+      padding-right:4px;
+    }
+    .empItem{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      border-radius: 14px;
+      padding:12px 12px;
+      margin-bottom:10px;
+      cursor:pointer;
+      transition: transform .08s ease, border-color .12s ease, background .12s ease;
+    }
+    .empItem:hover{
+      transform: translateY(-1px);
+      border-color: rgba(88,101,242,.35);
+      background: rgba(88,101,242,.06);
+    }
+    .empTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .dot{
+      width:10px; height:10px; border-radius:999px;
+      background: rgba(255,255,255,.22);
+      box-shadow: 0 0 0 3px rgba(255,255,255,.06);
+      flex: 0 0 auto;
+    }
+    .empName{
+      font-weight:800;
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .empMeta{
+      margin-top:8px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .empStats{
+      margin-top:4px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      font-size:11px;
+      color:var(--muted);
+    }
+    .saldo{
+      font-weight:900;
+      font-size:18px;
+      letter-spacing:.2px;
+      text-align:right;
+    }
+
+    .saldo.pos{ color: var(--ok); }
+    .saldo.neg{ color: var(--danger); }
+    .saldo.zero{ color: var(--zero); }
+
+    /* Main */
+    .main{
+      flex:1;
+      padding:18px 20px 28px;
+    }
+
+    .pageTitle{
+      font-size:28px;
+      margin:6px 0 6px;
+      letter-spacing:.3px;
+    }
+    .hint{
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:14px;
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      margin-top:20px; /* space between stacked cards */
+    }
+    /* prevent first card from having top margin (spacing already from page padding) */
+    .main .card:first-child{ margin-top:0; }
+    /* ensure header titles don’t add extra vertical gaps */
+    .cardHeader h2{ margin:0; }
+    .cardHeader{
+      padding:16px 16px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:12px;
+      justify-content:space-between;
+    }
+
+    .headerControls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      width:100%;
+    }
+
+    /* saved batches list styling */
+    .savedBatchesList {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .batchItem {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      background: rgba(255,255,255,.03);
+      cursor: pointer;
+      transition: background .12s ease, transform .08s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .batchItem:hover {
+      background: rgba(88,101,242,.06);
+      transform: translateY(-1px);
+    }
+    .batchItem .info {
+      display: flex;
+      flex-direction: column;
+    }
+    .batchItem .info .evt { font-weight: 700; }
+    .batchItem .info .dt { font-size: 12px; opacity: .75; }
+    .batchItem .count { font-size: 12px; color: var(--muted); }
+    .headerControls .group{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .headerControls .groupGrow{
+      flex: 1 1 auto;
+      min-width: 260px;
+    }
+
+    .btn{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      border-radius: 12px;
+      padding:10px 14px;
+      cursor:pointer;
+      font-weight:700;
+      transition: transform .08s ease, background .12s ease, border-color .12s ease;
+      white-space:nowrap;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+    }
+    .btn.primary{
+      background: linear-gradient(90deg, rgba(88,101,242,.95), rgba(124,58,237,.85));
+      border-color: rgba(88,101,242,.55);
+      box-shadow: 0 10px 28px rgba(88,101,242,.18);
+    }
+    .btn.primary:hover{ background: linear-gradient(90deg, rgba(88,101,242,1), rgba(124,58,237,.95)); }
+    .btn.ghost{
+      background: rgba(255,255,255,.02);
+    }
+    .btn.danger{
+      background: rgba(239,68,68,.18);
+      border-color: rgba(239,68,68,.35);
+    }
+
+    /* Table */
+    .tableWrap{ overflow:auto; }
+    table{
+      width:100%;
+      border-collapse: collapse;
+    }
+    thead th{
+      text-align:left;
+      font-size:12px;
+      color: rgba(255,255,255,.65);
+      padding:12px 14px;
+      border-bottom:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    tbody td{
+      padding:10px 14px; /* dichter */
+      border-bottom:1px solid rgba(255,255,255,.06);
+      vertical-align:middle;
+    }
+    .right{ text-align:right; }
+    .center{ text-align:center; }
+
+    .in{
+      width:100%;
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding:9px 10px; /* dichter */
+      color: var(--text);
+      outline:none;
+    }
+    .in:focus{
+      border-color: rgba(88,101,242,.55);
+      box-shadow: 0 0 0 3px rgba(88,101,242,.18);
+    }
+
+    /* remove number spinners */
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number]{ -moz-appearance: textfield; }
+
+    .noteCol{ max-width: 190px; }
+    .noteCol input{ max-width: 190px; }
+
+    .xBtn{
+      border:1px solid rgba(239,68,68,.35);
+      background: rgba(239,68,68,.10);
+      color: var(--text);
+      border-radius: 12px;
+      padding:8px 10px;
+      cursor:pointer;
+      font-weight:900;
+    }
+    .xBtn:hover{ background: rgba(239,68,68,.16); }
+
+    .status{
+      padding:12px 16px;
+      color: var(--muted);
+      font-size:13px;
+    }
+    .status.error{
+      color: rgba(255,255,255,.92);
+      background: rgba(239,68,68,.12);
+      border-top:1px solid rgba(239,68,68,.25);
+    }
+
+    /* Modal */
+    .modalOverlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.62);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index: 999;
+      padding: 18px;
+    }
+    .modal{
+      width: 520px;
+      max-width: 100%;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: 0 18px 60px rgba(0,0,0,.7);
+      overflow:hidden;
+    }
+    .modalHeader{
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .modalTitle{ font-weight:900; }
+    .modalBody{ padding: 14px 16px; display:grid; gap:10px; }
+    .modalActions{
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+    }
+    .closeX{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      color:var(--text);
+      border-radius: 10px;
+      padding:6px 10px;
+      cursor:pointer;
+      font-weight:900;
+    }
+
+    /* Footer info */
+    .footerInfo{
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align:center;
+      opacity:.85;
+    }
+
+    @media (max-width: 980px){
+      .sidebar{ display:none; }
+      .main{ padding: 14px; }
+    }
+
+    /* utility helpers for consistent spacing/layout */
+    .flex { display:flex; }
+    .gap-10 { gap:10px; }
+    .mt-10 { margin-top:10px; }
+    .mt-12 { margin-top:12px; }
+    .w-full { width:100%; }
+    .ml-auto { margin-left:auto; }
+    .hidden { display:none; }
+
+    /* text utilities */
+    .muted { color: var(--muted); }
+    .highlight { color: rgba(255,255,255,.92); }
+    .subdued { opacity:.6; font-weight:800; }
+    .strongish { font-weight:800; opacity:.9; }
+    .empLink { display:block; text-decoration:none; color: inherit; }
+    .truncate {
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:160px;
+    }
+    .smallMsg { font-size:12px; padding:4px 8px; }
+
+    /* layout helpers */
+    .pillRow { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .overflow-auto { overflow:auto; }
+    .cellIndex { width:44px; color: var(--muted); }
+    .in-right { text-align:right; max-width:160px; }
+    .checkbox-scale { transform: scale(1.15); }
+
+    /* table sizing helpers */
+    .min-w-240 { min-width:240px; }
+    .min-w-140 { min-width:140px; }
+    .min-w-160 { min-width:160px; }
+    .min-w-110 { min-width:110px; }
+    .min-w-200 { min-width:200px; }
+    .w-44 { width:44px; }
+    .w-70 { width:70px; }
+  </style>
+</head>
+
+<body data-page="dashboard">
+  <!-- dashboard page container -->
+  <div id="dashboardPage">
+    <div class="layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="brand">
+          <h1>Event-Tool</h1>
+          <div class="sub">MS KOI · Hybrid Dashboard</div>
+        </div>
+
+        <div class="sticky">
+          <div class="controls">
+            <div>
+              <div class="label">Jahr</div>
+              <select id="yearSelect" class="ctrl"></select>
+            </div>
+
+            <div>
+              <div class="label">Monat</div>
+              <select id="monthSelect" class="ctrl"></select>
+            </div>
+
+            <div class="sidebarSection">
+              <div class="sectionTitle">Mitarbeiter suchen</div>
+              <input id="employeeSearch" class="ctrl" placeholder="Name eintippen..." />
+              <div class="flex gap-10 mt-10">
+                <button id="addEmployeeBtn" class="btn primary w-full" type="button">+ Mitarbeiter hinzufügen</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sectionTitle mt-12">Mitarbeiter</div>
+        <div id="sidebarEmployees" class="empList"></div>
+      </aside>
+
+      <!-- Main -->
+      <main class="main">
+        <div class="pageTitle">Batch-Eingabe</div>
+        <div class="hint">
+          Cap-Logik: <strong>Cap gesetzt → Auszahlung = Cap (immer)</strong>. Differenzen laufen als Saldo weiter (kann +/−).
+        </div>
+
+        <section class="card">
+          <div class="cardHeader">
+            <div class="headerControls">
+              <div class="group">
+                <div>
+                  <div class="label">Batch-Datum</div>
+                  <input id="batchDate" class="ctrl" type="date" />
+                </div>
+              </div>
+
+              <div class="group groupGrow w-full">
+                <div>
+                  <div class="label">Event</div>
+                  <input id="batchEvent" class="ctrl" placeholder="z.B. MS Koi – Halloween" />
+                </div>
+              </div>
+
+              <div class="group ml-auto">
+                <button id="addRowBtn" class="btn ghost" type="button">Zeile hinzufügen</button>
+                <button id="saveBatchBtn" class="btn primary" type="button">Veranstaltung anlegen</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tableWrap">
+            <table>
+              <thead>
+                <tr>
+                  <th class="w-44">#</th>
+                  <th class="min-w-240">Mitarbeiter</th>
+                  <th class="right min-w-140">Stunden</th>
+                  <th class="right min-w-160">Fahrtzeit (h)</th>
+                  <th class="center min-w-110">Charter</th>
+                  <th class="center min-w-140">Übernachtung</th>
+                  <th class="noteCol min-w-200">Notiz</th>
+                  <th class="w-70"></th>
+                </tr>
+              </thead>
+              <tbody id="batchBody"></tbody>
+            </table>
+          </div>
+
+          <div id="status" class="status"></div>
+        </section>
+
+        <section class="card" id="savedBatchesSection">
+          <div class="cardHeader">
+            <h2>Gespeicherte Veranstaltungen</h2>
+          </div>
+          <div class="cardBody">
+            <div id="savedBatches" class="savedBatchesList">
+              <!-- dynamically populated -->
+            </div>
+          </div>
+        </section>
+
+        <div class="footerInfo">
+          Info: Fahrtzeit = 10 €/h · Charter = +50 € · Übernachtung = +20 €
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- employee page container (hidden by default) -->
+  <div id="employeePage" class="hidden">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="brand">
+          <h1>Mitarbeiter</h1>
+          <div class="sub">Akte-Ansicht</div>
+        </div>
+
+        <div class="sticky">
+          <button id="backToDashboard" class="btn primary w-full" type="button">Zurück zum Dashboard</button>
+
+          <div class="mt-12">
+            <div class="label">Jahr</div>
+            <select id="yearSelect" class="ctrl"></select>
+          </div>
+
+          <div class="mt-10">
+            <div class="label">Monat</div>
+            <select id="monthSelect" class="ctrl"></select>
+          </div>
+
+          <div class="sidebarSection mt-12">
+            <div class="sectionTitle">Suchen</div>
+            <input id="employeeSearch" class="ctrl" placeholder="Name eintippen..." />
+            <div class="flex gap-10 mt-10">
+              <button id="addEmployeeBtn" class="btn ghost w-full" type="button">+ Mitarbeiter hinzufügen</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sectionTitle mt-12">Liste</div>
+        <div id="sidebarEmployees" class="empList"></div>
+      </aside>
+
+      <main class="main">
+        <div class="titleRow">
+          <div>
+            <div id="employeeTitle" class="pageTitle">—</div>
+            <div id="employeeSub" class="sub">—</div>
+          </div>
+        </div>
+
+        <section class="card">
+          <div class="cardHeader">
+            <h2>Stammdaten</h2>
+            <div class="hint">Cap gesetzt → Auszahlung = Cap (immer). Saldo kann positiv (offen) oder negativ (Vorschuss) sein.</div>
+          </div>
+          <div class="cardBody">
+            <div class="row">
+              <div class="field">
+                <div class="label">Stundenlohn (€)</div>
+                <input id="hourlyRateInput" class="in" type="number" step="0.01" min="0" placeholder="z.B. 16.00" />
+              </div>
+
+              <div class="field">
+                <div class="label">Vertrag befristet bis</div>
+                <input id="contractEndInput" class="in" type="date" />
+              </div>
+
+              <div class="field">
+                <div class="label">Status</div>
+                <div id="contractEndBadge" class="pill">nicht gesetzt</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="cardHeader">
+            <h2>Monate & Einträge</h2>
+            <button id="toggleMonthsBtn" class="btn ghost" style="margin-left:auto;">Alle Monate anzeigen ▾</button>
+          </div>
+          <div class="hint">
+            Caps gelten ab dem Monat, in dem sie eingetragen werden, automatisch für alle folgenden Monate (und werden
+            angepasst, wenn du das Vertragsende später änderst). Du kannst später einzelne Monate anpassen.
+          </div>
+          <div class="cardBody">
+            <div id="monthsContainer"></div>
+          </div>
+
+          <div class="dangerZone">
+            <h3>Gefahrenbereich</h3>
+            <p>Dieser Mitarbeiter und alle zugehörigen Daten werden dauerhaft gelöscht.</p>
+            <button id="deleteEmployeeBtn" class="btn danger" type="button">Mitarbeiter löschen</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="cardHeader">
+            <h2>Jahresübersicht</h2>
+          </div>
+          <div class="cardBody">
+            <div class="grid3">
+              <div class="kpi">
+                <div class="k">Soll (Jahr)</div>
+                <div id="kpiDueYear" class="v">0,00 €</div>
+              </div>
+              <div class="kpi">
+                <div class="k">Auszahlung (Jahr)</div>
+                <div id="kpiPaidYear" class="v">0,00 €</div>
+              </div>
+              <div class="kpi">
+                <div class="k">Saldo Ende Jahr</div>
+                <div id="kpiSaldoYear" class="v saldo zero">0,00 €</div>
+                <div id="kpiSaldoLabel" class="muted" style="margin-top:6px;">Ausgeglichen</div>
+              </div>
+            </div>
+            <!-- additional yearly statistics -->
+            <div class="grid4 mt-10">
+              <div class="kpi">
+                <div class="k">Std (Jahr)</div>
+                <div id="kpiHoursYear" class="v">0&nbsp;h</div>
+              </div>
+              <div class="kpi">
+                <div class="k">Fahrt (Jahr)</div>
+                <div id="kpiTravelYear" class="v">0&nbsp;h</div>
+              </div>
+              <div class="kpi">
+                <div class="k">Charter (Jahr)</div>
+                <div id="kpiCharterYear" class="v">0</div>
+              </div>
+              <div class="kpi">
+                <div class="k">Übern. (Jahr)</div>
+                <div id="kpiOvernightYear" class="v">0</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Datalist -->
+  <datalist id="employeeList"></datalist>
+
+  <!-- Modal: Add Employee -->
+  <div id="addEmployeeModal" class="modalOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modalHeader">
+        <div id="modalTitle" class="modalTitle">Mitarbeiter hinzufügen</div>
+        <button id="closeModalBtn" class="closeX" type="button">X</button>
+      </div>
+
+      <div class="modalBody">
+        <div>
+          <div class="label">Name *</div>
+          <input id="newEmpName" class="in" placeholder="z.B. Lotta" />
+        </div>
+
+        <div>
+          <div class="label">Stundenlohn (optional)</div>
+          <input id="newEmpRate" class="in" type="number" step="0.01" min="0" placeholder="z.B. 16.00" />
+        </div>
+
+        <div>
+          <div class="label">Vertrag befristet bis (optional)</div>
+          <input id="newEmpContractEnd" class="in" type="date" />
+        </div>
+
+        <div style="color:var(--muted); font-size:12px;">
+          Hinweis: Name wird als Schlüssel genutzt. Bitte einheitliche Schreibweise (z. B. „Basti" vs. „Bastian").
+        </div>
+      </div>
+
+      <div class="modalActions">
+        <button id="cancelModalBtn" class="btn ghost" type="button">Abbrechen</button>
+        <button id="createEmpBtn" class="btn primary" type="button">Anlegen</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- inlined and adapted app.js ---
+    "use strict";
+    // password protection (offline, simple prompt)
+    const PASSWORD = "1234"; // ändere hier bei Bedarf
+    if (!localStorage.getItem("eventToolUnlocked")) {
+      const p = prompt("Passwort eingeben:");
+      if (p !== PASSWORD) {
+        alert("Falsches Passwort");
+        throw new Error("Unauthorized");
+      }
+      localStorage.setItem("eventToolUnlocked", "1");
+    }
+
+    const STORAGE_KEY = "eventTool.v5.data";
+
+    const TRAVEL_RATE = 10;
+    const CHARTER_FLAT = 50;
+    const OVERNIGHT_FLAT = 20;
+
+    // determine current page from query params or body dataset
+    const qs = new URLSearchParams(location.search);
+    let PAGE = qs.get("page") || document.body?.dataset?.page || "dashboard";
+    if (PAGE === "employee" && !qs.get("name")) PAGE = "dashboard";
+    document.body.dataset.page = PAGE;
+
+    let state = loadState(); // { entries:[], employees:{[name]:{hourlyRate:number, contractEnd?:string, payoutCaps:{[YYYY-MM]:number}}}}
+    let currentYear = new Date().getFullYear();
+    let currentMonthYM = ymOfDate(new Date()); // YYYY-MM
+    let searchTerm = "";
+
+    // dashboard-level state for batches (must be declared before init())
+    let currentBatchId = null; // when non-null we're editing an existing batch
+
+    init();
+
+    function init() {
+      normalizeStateShape();
+      showPage(PAGE);
+
+      if (PAGE === "dashboard") initDashboard();
+      if (PAGE === "employee") initEmployeePage();
+    }
+
+    function showPage(p) {
+      const dash = document.getElementById("dashboardPage");
+      const emp = document.getElementById("employeePage");
+
+      // style.display is used for dynamic toggling, but we also support
+      // the `.hidden` helper class which may be present on the element.
+      dash.style.display = p === "dashboard" ? "" : "none";
+      emp.style.display = p === "employee" ? "" : "none";
+
+      dash.classList.toggle("hidden", p !== "dashboard");
+      emp.classList.toggle("hidden", p !== "employee");
+    }
+
+    /* -------------------- Dashboard -------------------- */
+    // (currentBatchId already defined above init() to avoid TDZ errors)
+    function initDashboard() {
+      console.log("state on initDashboard", state);
+      // clear any leftover search filter so sidebar is always visible
+      searchTerm = "";
+      const employeeSearch = byId("employeeSearch");
+      if (employeeSearch) employeeSearch.value = "";
+
+      // Elements
+      const yearSelect = byId("yearSelect");
+      const monthSelect = byId("monthSelect");
+      const sidebarEmployees = byId("sidebarEmployees");
+
+      if (!yearSelect || !monthSelect || !sidebarEmployees) {
+        console.error("Essential dashboard elements missing");
+      }
+
+      // indicate number of employees loaded
+      const empCount = Object.keys(state.employees || {}).length;
+      if (empCount === 0) {
+        // statusEl may not exist yet; we set later inside init
+        console.warn("No employees found in state");
+      } else {
+        console.log(empCount+" employees loaded");
+      }
+
+      const batchDateEl = byId("batchDate");
+      const batchEventEl = byId("batchEvent");
+      const addRowBtn = byId("addRowBtn");
+      const saveBatchBtn = byId("saveBatchBtn");
+      const batchBody = byId("batchBody");
+      const statusEl = byId("status");
+
+      const savedBatchesEl = byId("savedBatches");
+      const employeeListEl = byId("employeeList");
+
+      // helper: group entries by batchId and render list
+      function renderSavedBatches() {
+        try {
+          const groups = new Map();
+          for (const e of state.entries) {
+            const id = e.batchId || "";
+            if (!id) continue;
+            if (!groups.has(id)) groups.set(id, { id, date: e.date, event: e.event || "", entries: [] });
+            groups.get(id).entries.push(e);
+          }
+          // sort by date desc
+          const list = Array.from(groups.values()).sort((a,b)=>b.date.localeCompare(a.date));
+          savedBatchesEl.innerHTML = list.map(g=>{
+            return `<div class="batchItem" data-batch="${g.id}">
+                      <div class="info">
+                        <span class="evt">${escapeHtml(g.event||"(kein Name)")}</span>
+                        <span class="dt">${escapeHtml(g.date)}</span>
+                      </div>
+                      <span class="count">${g.entries.length} Einträge</span>
+                    </div>`;
+          }).join("");
+          // attach click handlers
+          savedBatchesEl.querySelectorAll('.batchItem').forEach(el=>{
+            el.addEventListener('click',()=>{
+              loadBatch(el.getAttribute('data-batch'));
+            });
+          });
+        } catch (err) {
+          console.error("Fehler beim Rendern der gespeicherten Veranstaltungen", err);
+          savedBatchesEl.innerHTML = "<div class=\"muted smallMsg\">Fehler beim Laden</div>";
+        }
+      }
+
+      function loadBatch(batchId) {
+        // make sure any search filter is cleared when editing a saved batch
+        searchTerm = "";
+        if (employeeSearch) employeeSearch.value = "";
+        renderSidebarEmployees(sidebarEmployees, { activeEmployee: "" });
+
+        const batchEntries = state.entries.filter(e=>e.batchId===batchId);
+        if (!batchEntries.length) return;
+        currentBatchId = batchId;
+        batchDateEl.value = batchEntries[0].date;
+        batchEventEl.value = batchEntries[0].event || '';
+        batchBody.innerHTML = '';
+        for (const e of batchEntries) {
+          addBatchRow(batchBody);
+          const tr = batchBody.lastElementChild;
+          tr.querySelector('[data-k="employee"]').value = e.employee;
+          tr.querySelector('[data-k="hours"]').value = e.hours;
+          tr.querySelector('[data-k="travel"]').value = e.travelHours;
+          tr.querySelector('[data-k="charter"]').checked = e.charter;
+          tr.querySelector('[data-k="overnight"]').checked = e.overnight;
+          tr.querySelector('[data-k="note"]').value = e.note;
+        }
+        renumberBatchRows(batchBody);
+        saveBatchBtn.textContent = "Batch aktualisieren";
+        // ensure datalist includes all employees
+        renderEmployeeDatalist(employeeListEl);
+      }
+
+      function clearBatchForm() {
+        currentBatchId = null;
+        batchBody.innerHTML = '';
+        for (let i = 0; i < 10; i++) addBatchRow(batchBody);
+        batchDateEl.value = toISODate(new Date());
+        batchEventEl.value = '';
+        saveBatchBtn.textContent = "Veranstaltung anlegen";
+      }
+
+
+      // Modal (Add employee)
+      const addEmployeeBtn = byId("addEmployeeBtn");
+      const addEmployeeModal = byId("addEmployeeModal");
+      const closeModalBtn = byId("closeModalBtn");
+      const cancelModalBtn = byId("cancelModalBtn");
+      const createEmpBtn = byId("createEmpBtn");
+      const newEmpName = byId("newEmpName");
+      const newEmpRate = byId("newEmpRate");
+      const newEmpContractEnd = byId("newEmpContractEnd");
+
+      ensureYearOptions(yearSelect);
+      yearSelect.value = String(currentYear);
+
+      batchDateEl.value = toISODate(new Date());
+
+      currentMonthYM = defaultMonthForYear(currentYear);
+      ensureMonthOptions(monthSelect, currentYear, currentMonthYM);
+
+      // initial batch form
+      clearBatchForm();
+
+      renderEmployeeDatalist(employeeListEl);
+      renderSidebarEmployees(sidebarEmployees, { activeEmployee: "" });
+      renderSavedBatches();
+
+      // show employee count status
+      if (empCount === 0) {
+        const s = byId("status");
+        if (s) setStatus(s, "Keine Mitarbeiter in der Datenbank (neu oder korrumpiert).", true);
+      }
+
+      // Events
+      yearSelect.addEventListener("change", () => {
+        currentYear = Number(yearSelect.value);
+        currentMonthYM = defaultMonthForYear(currentYear);
+        ensureMonthOptions(monthSelect, currentYear, currentMonthYM);
+        renderSidebarEmployees(sidebarEmployees, { activeEmployee: "" });
+      });
+
+      monthSelect.addEventListener("change", () => {
+        currentMonthYM = monthSelect.value;
+        renderSidebarEmployees(sidebarEmployees, { activeEmployee: "" });
+      });
+
+      employeeSearch.addEventListener("input", () => {
+        searchTerm = cleanText(employeeSearch.value).toLowerCase();
+        renderSidebarEmployees(sidebarEmployees, { activeEmployee: "" });
+      });
+
+      addRowBtn.addEventListener("click", () => {
+        if (!batchBody) { console.error("batchBody not found"); return; }
+        addBatchRow(batchBody);
+      });
+
+      saveBatchBtn.addEventListener("click", () => {
+        const batchDate = cleanText(batchDateEl.value);
+        if (!batchDate) return setStatus(statusEl, "Bitte Batch-Datum auswählen.", true);
+
+        const batchEvent = cleanText(batchEventEl.value);
+
+        const rows = Array.from(batchBody.querySelectorAll("tr"));
+        const newEntries = [];
+        const confirmedNewEmployees = new Set();
+
+        // determine batchId for this save
+        const batchId = currentBatchId || crypto.randomUUID();
+
+        for (const tr of rows) {
+          const employee = cleanText(getVal(tr, "employee"));
+          const hours = clamp0(toNumber(getVal(tr, "hours")));
+          const travel = clamp0(toNumber(getVal(tr, "travel")));
+          const charter = getChecked(tr, "charter");
+          const overnight = getChecked(tr, "overnight");
+          const note = cleanText(getVal(tr, "note"));
+
+          const hasAnyInput = employee || hours > 0 || travel > 0 || charter || overnight || note;
+          if (!hasAnyInput) continue;
+
+          if (!employee) {
+            return setStatus(statusEl, "Fehler: In einer Zeile fehlt der Mitarbeitername.", true);
+          }
+
+          if (!state.employees[employee] && !confirmedNewEmployees.has(employee)) {
+            const ok = ensureEmployee(employee, { confirmCreate: true });
+            if (!ok) continue;
+            confirmedNewEmployees.add(employee);
+          }
+
+          newEntries.push({
+            id: crypto.randomUUID(),
+            batchId,
+            employee,
+            date: batchDate,
+            event: batchEvent,
+            hours,
+            travelHours: travel,
+            charter: !!charter,
+            overnight: !!overnight,
+            note,
+            createdAt: new Date().toISOString(),
+          });
+        }
+
+        if (newEntries.length === 0) {
+          return setStatus(statusEl, "Keine Daten zum Speichern gefunden.", true);
+        }
+
+        // if editing, remove old entries with same batchId first
+        if (currentBatchId) {
+          state.entries = state.entries.filter(e => e.batchId !== currentBatchId);
+        }
+
+        state.entries.push(...newEntries);
+        saveState(state);
+
+        // reset form
+        clearBatchForm();
+        ensureYearOptions(yearSelect);
+        setStatus(statusEl, `${newEntries.length} Einträge gespeichert.`, false);
+        renderEmployeeDatalist(employeeListEl);
+        renderSidebarEmployees(sidebarEmployees, { activeEmployee: "" });
+        renderSavedBatches();
+      });
+
+      // Modal handlers
+      addEmployeeBtn.addEventListener("click", () => openModal(addEmployeeModal, { newEmpName, newEmpRate, newEmpContractEnd }));
+      closeModalBtn.addEventListener("click", () => closeModal(addEmployeeModal));
+      cancelModalBtn.addEventListener("click", () => closeModal(addEmployeeModal));
+      addEmployeeModal.addEventListener("click", (e) => {
+        if (e.target === addEmployeeModal) closeModal(addEmployeeModal);
+      });
+
+      createEmpBtn.addEventListener("click", () => {
+        const name = cleanText(newEmpName.value);
+        const rate = clamp0(toNumber(newEmpRate.value));
+        const contractEnd = cleanText(newEmpContractEnd.value);
+
+        if (!name) {
+          newEmpName.focus();
+          return;
+        }
+
+        if (!state.employees[name]) {
+          console.log("creating employee", name);
+          state.employees[name] = { hourlyRate: 0, contractEnd: "", payoutCaps: {} };
+        } else {
+          console.log("updating employee", name);
+        }
+
+        // Update fields (wenn leer gelassen: bestehendes behalten)
+        if (Number.isFinite(rate)) state.employees[name].hourlyRate = rate;
+        if (contractEnd !== "") state.employees[name].contractEnd = contractEnd;
+
+        saveState(state);
+
+        renderEmployeeDatalist(employeeListEl);
+        renderSidebarEmployees(sidebarEmployees, { activeEmployee: "" });
+        closeModal(addEmployeeModal);
+      });
+    }
+
+    /* -------------------- Employee Page -------------------- */
+    function initEmployeePage() {
+      // clear sidebar filter when entering employee view
+      searchTerm = "";
+      const empSearch = document.querySelector("#employeePage #employeeSearch");
+      if (empSearch) empSearch.value = "";
+
+      const root = document.getElementById("employeePage");
+      const qs2 = new URLSearchParams(location.search);
+      const employeeName = cleanText(qs2.get("name") || "");
+
+      // toggle state for months list
+      let showAllMonths = false;
+
+
+      if (!employeeName || !state.employees[employeeName]) {
+        location.replace(location.pathname);
+        return;
+      }
+
+      // sidebar elements scoped to employee page
+      const yearSelect = root.querySelector("#yearSelect");
+      const monthSelect = root.querySelector("#monthSelect");
+      const employeeSearch = root.querySelector("#employeeSearch");
+      const sidebarEmployees = root.querySelector("#sidebarEmployees");
+      const backToDashboardBtn = root.querySelector("#backToDashboard");
+
+      // Add employee modal (also in the Akte vorhanden)
+      const addEmployeeBtn = root.querySelector("#addEmployeeBtn");
+      const addEmployeeModal = document.getElementById("addEmployeeModal");
+      const closeModalBtn = document.getElementById("closeModalBtn");
+      const cancelModalBtn = document.getElementById("cancelModalBtn");
+      const createEmpBtn = document.getElementById("createEmpBtn");
+      const newEmpName = document.getElementById("newEmpName");
+      const newEmpRate = document.getElementById("newEmpRate");
+      const newEmpContractEnd = document.getElementById("newEmpContractEnd");
+
+      // Main IDs aus deiner employee.html
+      const titleEl = root.querySelector("#employeeTitle");
+      const subEl = root.querySelector("#employeeSub");
+
+      const hourlyRateInput = root.querySelector("#hourlyRateInput");
+      const contractEndInput = root.querySelector("#contractEndInput");
+      const contractEndBadge = root.querySelector("#contractEndBadge");
+
+      const kpiDueYear = root.querySelector("#kpiDueYear");
+      const kpiPaidYear = root.querySelector("#kpiPaidYear");
+      const kpiSaldoYear = root.querySelector("#kpiSaldoYear");
+      const kpiSaldoLabel = root.querySelector("#kpiSaldoLabel");
+
+      const monthsContainer = root.querySelector("#monthsContainer");
+      const toggleMonthsBtn = root.querySelector("#toggleMonthsBtn");
+      const deleteEmployeeBtn = root.querySelector("#deleteEmployeeBtn");
+
+      // Year defaults from query
+      currentYear = Number(qs2.get("year") || new Date().getFullYear());
+      ensureYearOptions(yearSelect);
+      yearSelect.value = String(currentYear);
+
+      currentMonthYM = defaultMonthForYear(currentYear);
+      ensureMonthOptions(monthSelect, currentYear, currentMonthYM);
+
+      // Header
+      titleEl.textContent = employeeName;
+      subEl.textContent = `Jahr: ${currentYear}`;
+
+      // Stammdaten
+      hourlyRateInput.value = state.employees[employeeName].hourlyRate ? String(state.employees[employeeName].hourlyRate) : "";
+      contractEndInput.value = state.employees[employeeName].contractEnd || "";
+      renderContractBadge(contractEndBadge, state.employees[employeeName].contractEnd || "");
+
+      // Sidebar initial
+      renderSidebarEmployees(sidebarEmployees, { activeEmployee: employeeName });
+
+      // toggle button handler
+      toggleMonthsBtn.addEventListener("click", () => {
+        showAllMonths = !showAllMonths;
+        toggleMonthsBtn.textContent = showAllMonths
+          ? "Nur aktuellen Monat anzeigen ▴"
+          : "Alle Monate anzeigen ▾";
+        renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer, showAllMonths);
+      });
+
+      // Back
+      backToDashboardBtn.addEventListener("click", () => {
+        location.href = location.pathname;
+      });
+
+      // Sidebar events
+      yearSelect.addEventListener("change", () => {
+        currentYear = Number(yearSelect.value);
+        subEl.textContent = `Jahr: ${currentYear}`;
+        currentMonthYM = defaultMonthForYear(currentYear);
+        ensureMonthOptions(monthSelect, currentYear, currentMonthYM);
+
+        renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer, showAllMonths);
+        renderSidebarEmployees(sidebarEmployees, { activeEmployee: employeeName });
+      });
+
+      monthSelect.addEventListener("change", () => {
+        currentMonthYM = monthSelect.value;
+        renderSidebarEmployees(sidebarEmployees, { activeEmployee: employeeName });
+        // optional: scroll zum Monat - später
+      });
+
+      employeeSearch.addEventListener("input", () => {
+        searchTerm = cleanText(employeeSearch.value).toLowerCase();
+        renderSidebarEmployees(sidebarEmployees, { activeEmployee: employeeName });
+      });
+
+      // Stammdaten speichern
+      hourlyRateInput.addEventListener("change", () => {
+        const val = clamp0(toNumber(hourlyRateInput.value));
+        state.employees[employeeName].hourlyRate = Number.isFinite(val) ? val : 0;
+        saveState(state);
+        renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer, showAllMonths);
+        renderSidebarEmployees(sidebarEmployees, { activeEmployee: employeeName });
+      });
+
+      contractEndInput.addEventListener("change", () => {
+        state.employees[employeeName].contractEnd = cleanText(contractEndInput.value);
+        saveState(state);
+        renderContractBadge(contractEndBadge, state.employees[employeeName].contractEnd || "");
+        // if end changed, re-propagate existing caps
+        ensureCapsPropagated(employeeName);
+        renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer, showAllMonths);
+        renderSidebarEmployees(sidebarEmployees, { activeEmployee: employeeName });
+      });
+
+      // Delete employee
+      deleteEmployeeBtn.addEventListener("click", () => {
+        const ok = confirm(
+          `Mitarbeiter "${employeeName}" wirklich löschen?\n\nHinweis: Einträge (Schichten) bleiben gespeichert, aber Stammdaten/Cap werden entfernt.`
+        );
+        if (!ok) return;
+        delete state.employees[employeeName];
+        saveState(state);
+        location.href = location.pathname;
+      });
+
+      // Modal handlers (Akte)
+      addEmployeeBtn.addEventListener("click", () => openModal(addEmployeeModal, { newEmpName, newEmpRate, newEmpContractEnd }));
+      closeModalBtn.addEventListener("click", () => closeModal(addEmployeeModal));
+      cancelModalBtn.addEventListener("click", () => closeModal(addEmployeeModal));
+      addEmployeeModal.addEventListener("click", (e) => {
+        if (e.target === addEmployeeModal) closeModal(addEmployeeModal);
+      });
+
+      createEmpBtn.addEventListener("click", () => {
+        const name = cleanText(newEmpName.value);
+        const rate = clamp0(toNumber(newEmpRate.value));
+        const contractEnd = cleanText(newEmpContractEnd.value);
+
+        if (!name) {
+          newEmpName.focus();
+          return;
+        }
+
+        if (!state.employees[name]) {
+          state.employees[name] = { hourlyRate: 0, contractEnd: "", payoutCaps: {} };
+        }
+
+        if (Number.isFinite(rate)) state.employees[name].hourlyRate = rate;
+        if (contractEnd !== "") state.employees[name].contractEnd = contractEnd;
+
+        saveState(state);
+
+        // nach Anlage direkt zur neuen Akte wechseln
+        closeModal(addEmployeeModal);
+        location.href = `${location.pathname}?page=employee&name=${encodeURIComponent(name)}&year=${encodeURIComponent(String(currentYear))}`;
+      });
+
+      // First render
+      renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer, showAllMonths);
+    }
+
+    /* -------------------- Rendering -------------------- */
+    function renderEmployeeDatalist(employeeListEl) {
+      const employees = Object.keys(state.employees).sort((a, b) => a.localeCompare(b, "de"));
+      employeeListEl.innerHTML = employees.map(n => `<option value="${escapeHtml(n)}"></option>`).join("");
+    }
+
+    function renderSidebarEmployees(sidebarEmployeesEl, opts = {}) {
+      const activeEmployee = opts.activeEmployee || "";
+
+      const employeesAll = Object.keys(state.employees).sort((a, b) => a.localeCompare(b, "de"));
+      const employees = searchTerm
+        ? employeesAll.filter(n => n.toLowerCase().includes(searchTerm))
+        : employeesAll;
+
+      if (!employeesAll.length) {
+        sidebarEmployeesEl.innerHTML = `<div class="muted smallMsg">Noch keine Mitarbeiter.</div>`;
+        return;
+      }
+      if (!employees.length) {
+        sidebarEmployeesEl.innerHTML = `<div class="muted smallMsg">Keine Treffer.</div>`;
+        return;
+      }
+
+      const entriesOfYear = state.entries.filter(e => yearOf(e.date) === currentYear);
+
+      sidebarEmployeesEl.innerHTML = employees.map(name => {
+        const emp = state.employees[name];
+        const hr = Number(emp.hourlyRate || 0);
+        const caps = emp.payoutCaps || {};
+
+        // compute raw stats for the year before ledger
+        const empEntries = entriesOfYear.filter(e => e.employee === name);
+        const totals = empEntries.reduce((acc, e) => {
+          acc.hours += Number(e.hours || 0);
+          acc.travel += Number(e.travelHours || 0);
+          acc.charter += e.charter ? 1 : 0;
+          acc.overnight += e.overnight ? 1 : 0;
+          return acc;
+        }, { hours:0, travel:0, charter:0, overnight:0 });
+
+        const ledger = buildMonthlyLedgerCapFixed(name, currentYear, entriesOfYear, hr, caps);
+        const m = ledger.find(x => x.ym === currentMonthYM) || { baseDue: 0, paid: 0, carryOut: 0 };
+        const cap = clamp0(Number(caps?.[currentMonthYM] || 0));
+        const saldo = m.carryOut;
+
+        const saldoClass = saldo < 0 ? "neg" : (saldo > 0 ? "pos" : "zero");
+        const dotColor = saldo < 0 ? "rgba(239,68,68,.95)" : (saldo > 0 ? "rgba(34,197,94,.95)" : "rgba(96,165,250,.95)");
+
+        const isActive = name === activeEmployee;
+        const href = `?page=employee&name=${encodeURIComponent(name)}&year=${encodeURIComponent(String(currentYear))}`;
+
+        return `
+          <a class="empItem empLink ${isActive ? "active" : ""}" href="${href}">
+            <div class="empTop">
+              <div class="empName">
+                <span class="dot" style="background:${dotColor};"></span>
+                <span class="truncate">${escapeHtml(name)}</span>
+              </div>
+              <div class="saldo ${saldoClass}">${fmt(saldo)} €</div>
+            </div>
+            <div class="empMeta">
+              <div>Soll: <strong class="highlight">${fmt(m.baseDue)} €</strong></div>
+              <div>Cap: <strong class="highlight">${cap > 0 ? `${fmt(cap)} €` : "—"}</strong></div>
+            </div>
+            <div class="empStats">
+              <div>Std: ${fmt(totals.hours)} h</div>
+              <div>Fahrt: ${fmt(totals.travel)} h</div>
+              <div>Charter: ${totals.charter}</div>
+              <div>Übern.: ${totals.overnight}</div>
+            </div>
+          </a>
+        `;
+      }).join("");
+    }
+
+    // ensure any earlier cap value propagates forward (called before rendering)
+// also remove any caps that fall after the contract end date
+function ensureCapsPropagated(employeeName) {
+  const emp = state.employees[employeeName];
+  if (!emp) return;
+
+  // drop any caps past the contract termination
+  if (emp.contractEnd) {
+    const endYM = `${emp.contractEnd.slice(0,4)}-${emp.contractEnd.slice(5,7)}`;
+    for (const ym of Object.keys(emp.payoutCaps || {})) {
+      if (ym > endYM) {
+        delete emp.payoutCaps[ym];
+      }
+    }
+  }
+
+  const caps = emp.payoutCaps || {};
+  const yms = Object.keys(caps).sort();
+  const first = yms.find(ym => Number(caps[ym]) > 0);
+  if (first) propagateCap(employeeName, first, caps[first]);
+
+  // if we mutated the caps object above we should persist
+  saveState(state);
+}
+
+function propagateCap(empName, fromYM, val) {
+  const emp = state.employees[empName];
+  if (!emp) return;
+  emp.payoutCaps = emp.payoutCaps || {};
+  const caps = emp.payoutCaps;
+  const endYM = emp.contractEnd ? `${emp.contractEnd.slice(0,4)}-${emp.contractEnd.slice(5,7)}` : null;
+
+  let [y, m] = fromYM.split("-").map(Number);
+  // start with next month
+  m++;
+  if (m > 12) { m = 1; y++; }
+
+  const maxYear = endYM ? Number(endYM.slice(0,4)) : new Date().getFullYear() + 5;
+
+  while (true) {
+    const ym = `${y}-${String(m).padStart(2, "0")}`;
+    // stop if we've hit contract end
+    if (endYM && ym > endYM) break;
+    if (y > maxYear) break;
+
+    if (!caps[ym] || caps[ym] === 0) {
+      caps[ym] = val;
+    }
+
+    m++;
+    if (m > 12) { m = 1; y++; }
+  }
+}
+
+function renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer, showAllMonths = false) {
+      const emp = state.employees[employeeName];
+      const hr = Number(emp.hourlyRate || 0);
+      const caps = emp.payoutCaps || {};
+      const entriesOfYear = state.entries.filter(e => yearOf(e.date) === currentYear);
+
+      // propagate any stored cap forward before calculating ledger
+      ensureCapsPropagated(employeeName);
+
+      const ledger = buildMonthlyLedgerCapFixed(employeeName, currentYear, entriesOfYear, hr, caps);
+
+      // only display current month if collapsed
+      const displayLedger = showAllMonths
+        ? ledger
+        : ledger.filter(m => m.ym === currentMonthYM);
+
+      const sumDue = ledger.reduce((s, m) => s + m.baseDue, 0);
+      const sumPaid = ledger.reduce((s, m) => s + m.paid, 0);
+      const saldoEnd = ledger.length ? ledger[ledger.length - 1].carryOut : 0;
+
+  // aggregate raw statistics from entries
+  const yearTotals = entriesOfYear.reduce((acc, e) => {
+    if (e.employee === employeeName) {
+      acc.hours += Number(e.hours || 0);
+      acc.travel += Number(e.travelHours || 0);
+      acc.charter += e.charter ? 1 : 0;
+      acc.overnight += e.overnight ? 1 : 0;
+    }
+    return acc;
+  }, { hours:0, travel:0, charter:0, overnight:0 });
+
+  kpiDueYear.textContent = `${fmt(sumDue)} €`;
+  kpiPaidYear.textContent = `${fmt(sumPaid)} €`;
+
+  // update the new stat KPIs if they exist
+  const kpiHours = document.getElementById("kpiHoursYear");
+  const kpiTravel = document.getElementById("kpiTravelYear");
+  const kpiCharter = document.getElementById("kpiCharterYear");
+  const kpiOvernight = document.getElementById("kpiOvernightYear");
+  if (kpiHours) kpiHours.textContent = `${fmt(yearTotals.hours)} h`;
+  if (kpiTravel) kpiTravel.textContent = `${fmt(yearTotals.travel)} h`;
+  if (kpiCharter) kpiCharter.textContent = `${yearTotals.charter}`;
+  if (kpiOvernight) kpiOvernight.textContent = `${yearTotals.overnight}`;
+      if (saldoEnd < 0) {
+        kpiSaldoYear.classList.add("saldo", "neg");
+        kpiSaldoLabel.textContent = "Vorschuss (−)";
+      } else if (saldoEnd > 0) {
+        kpiSaldoYear.classList.add("saldo", "pos");
+        kpiSaldoLabel.textContent = "Offen (+)";
+      } else {
+        kpiSaldoYear.classList.add("saldo", "zero");
+        kpiSaldoLabel.textContent = "Ausgeglichen";
+      }
+
+      monthsContainer.innerHTML = displayLedger.map(m => {
+        const cap = clamp0(Number(caps?.[m.ym] || 0));
+
+        const saldoClass = m.carryOut < 0 ? "neg" : (m.carryOut > 0 ? "pos" : "zero");
+
+        return `
+          <details class="month">
+            <summary>
+              <span>${escapeHtml(m.label)} <span class="subdued">(${escapeHtml(m.ym)})</span></span>
+              <span class="strongish">
+                Soll ${fmt(m.baseDue)} € · Auszahlung ${fmt(m.paid)} € ·
+                <span class="saldo ${saldoClass}">Saldo ${fmt(m.carryOut)} €</span>
+              </span>
+            </summary>
+
+            <div class="monthBody">
+              <div class="capRow">
+                <div class="field">
+                  <div class="label">Cap (fixe Auszahlung) €</div>
+                  <input
+                    class="in"
+                    type="number" step="0.01" min="0"
+                    data-cap="1"
+                    data-emp="${escapeHtml(employeeName)}"
+                    data-ym="${escapeHtml(m.ym)}"
+                    value="${cap > 0 ? String(cap) : ""}"
+                    placeholder="z.B. 600"
+                  />
+                </div>
+
+                <div class="pillRow">
+                  <span class="pill">Auszahlung: <strong>${fmt(m.paid)} €</strong></span>
+                  <span class="pill">Saldo: <strong class="saldo ${saldoClass}">${fmt(m.carryOut)} €</strong></span>
+                </div>
+              </div>
+
+              ${m.entries.length ? `
+                <div class="overflow-auto mt-10">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Datum</th>
+                        <th>Event</th>
+                        <th class="right">Stunden</th>
+                        <th class="right">Fahrtzeit</th>
+                        <th class="center">Charter</th>
+                        <th class="center">Übernachtung</th>
+                        <th class="right">Lohn (€)</th>
+                        <th class="right">Pauschalen (€)</th>
+                        <th class="right">Summe (€)</th>
+                        <th>Notiz</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${m.entries.map(e => `
+                        <tr>
+                          <td>${escapeHtml(e.date)}</td>
+                          <td>${escapeHtml(e.event || "")}</td>
+                          <td class="right">${fmt(e.hours)}</td>
+                          <td class="right">${fmt(e.travelHours)}</td>
+                          <td class="center">${e.charter ? "Ja" : "Nein"}</td>
+                          <td class="center">${e.overnight ? "Ja" : "Nein"}</td>
+                          <td class="right">${fmt(e._wagePart)} €</td>
+                      <td class="right">${fmt(e._allowPart)} €</td>
+                      <td class="right"><strong>${fmt(e._lineTotal)} €</strong></td>
+                      <td>${escapeHtml(e.note || "")}</td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+          ` : `<div class="muted mt-10">Keine Einträge in diesem Monat.</div>`}
+        </div>
+      </details>
+    `;
+  }).join("");
+
+  // Wire cap inputs
+  monthsContainer.querySelectorAll('input[data-cap="1"]').forEach(inp => {
+    inp.addEventListener("change", () => {
+      const ym = inp.getAttribute("data-ym");
+      const empName = inp.getAttribute("data-emp");
+      const val = clamp0(toNumber(inp.value));
+
+      ensureEmployee(empName);
+      state.employees[empName].payoutCaps = state.employees[empName].payoutCaps || {};
+      if (Number.isFinite(val) && val > 0) {
+        state.employees[empName].payoutCaps[ym] = val;
+        // propagate this cap forward to subsequent months
+        propagateCap(empName, ym, val);
+      } else {
+        state.employees[empName].payoutCaps[ym] = 0;
+      }
+
+      saveState(state);
+      renderEmployeeAkte(empName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer, showAllMonths);
+    });
+  });
+}
+
+/* -------------------- Batch rows -------------------- */
+
+function addBatchRow(batchBody) {
+  const idx = batchBody.children.length + 1;
+  const tr = document.createElement("tr");
+
+  tr.innerHTML = `
+    <td class="center cellIndex">${idx}</td>
+
+    <td>
+      <input data-k="employee" list="employeeList" class="in" placeholder="Name auswählen" />
+    </td>
+
+    <td class="right">
+      <input data-k="hours" type="number" step="0.25" min="0" class="in in-right" />
+    </td>
+
+    <td class="right">
+      <input data-k="travel" type="number" step="0.25" min="0" class="in in-right" />
+    </td>
+
+    <td class="center">
+      <input data-k="charter" type="checkbox" class="checkbox-scale" />
+    </td>
+
+    <td class="center">
+      <input data-k="overnight" type="checkbox" class="checkbox-scale" />
+    </td>
+
+    <td class="noteCol">
+      <input data-k="note" class="in" placeholder="Optional" />
+    </td>
+
+    <td class="right">
+      <button type="button" data-del="1" class="xBtn">X</button>
+    </td>
+  `;
+
+  tr.querySelector('button[data-del="1"]').addEventListener("click", () => {
+    tr.remove();
+    renumberBatchRows(batchBody);
+  });
+
+  batchBody.appendChild(tr);
+  renumberBatchRows(batchBody);
+}
+
+function renumberBatchRows(batchBody) {
+  Array.from(batchBody.children).forEach((tr, i) => {
+    const cell = tr.querySelector("td");
+    if (cell) cell.textContent = String(i + 1);
+  });
+}
+
+/* -------------------- Ledger (Cap fixed payout) -------------------- */
+
+function buildMonthlyLedgerCapFixed(employee, year, entriesYear, hourlyRate, payoutCaps) {
+  const months = [];
+  let carry = 0;
+  // figure out contract boundary if any
+  const emp = state.employees[employee] || {};
+  const endYM = emp.contractEnd ? `${emp.contractEnd.slice(0,4)}-${emp.contractEnd.slice(5,7)}` : null;
+
+  for (let m = 1; m <= 12; m++) {
+    const ym = `${year}-${String(m).padStart(2, "0")}`;
+
+    // compute list regardless; we'll zero-pay later if past contract
+    const list = entriesYear
+      .filter(e => e.employee === employee && String(e.date || "").startsWith(ym))
+      .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+
+    for (const e of list) {
+      e._wagePart = (e.hours || 0) * hourlyRate;
+      e._allowPart =
+        (e.travelHours || 0) * TRAVEL_RATE +
+        (e.charter ? CHARTER_FLAT : 0) +
+        (e.overnight ? OVERNIGHT_FLAT : 0);
+      e._lineTotal = e._wagePart + e._allowPart;
+    }
+
+    const payHours = list.reduce((s, e) => s + (e._wagePart || 0), 0);
+    const payAllow = list.reduce((s, e) => s + (e._allowPart || 0), 0);
+    const baseDue = payHours + payAllow;
+
+    // cap from stored data
+    const cap = clamp0(Number(payoutCaps?.[ym] || 0));
+
+    // default paid calculation
+    let paid;
+    if (endYM && ym > endYM) {
+      // after contract end: no payout at all
+      paid = 0;
+    } else if (cap > 0) {
+      paid = cap;
+    } else {
+      paid = Math.max(0, carry + baseDue);
+    }
+
+    const carryOut = carry + baseDue - paid;
+
+    months.push({
+      ym,
+      label: monthNameDE(m),
+      entries: list,
+      baseDue,
+      paid,
+      carryIn: carry,
+      carryOut,
+      cap
+    });
+
+    carry = carryOut;
+  }
+
+  return months;
+}
+
+/* -------------------- Employees & state -------------------- */
+
+function ensureEmployee(name, { confirmCreate = false } = {}) {
+  if (state.employees[name]) return true;
+
+  if (confirmCreate) {
+    const ok = confirm(`Bist du dir sicher, dass du für "${name}" eine neue Mitarbeiter-Kachel erstellen möchtest?`);
+    if (!ok) return false;
+  }
+
+  state.employees[name] = { hourlyRate: 0, contractEnd: "", payoutCaps: {} };
+  saveState(state);
+  return true;
+}
+
+function normalizeStateShape() {
+  state.entries = Array.isArray(state.entries) ? state.entries : [];
+  state.employees = state.employees && typeof state.employees === "object" ? state.employees : {};
+
+  for (const name of Object.keys(state.employees)) {
+    const emp = state.employees[name] || {};
+    if (typeof emp.hourlyRate !== "number") emp.hourlyRate = clamp0(Number(emp.hourlyRate || 0));
+    if (!emp.payoutCaps || typeof emp.payoutCaps !== "object") emp.payoutCaps = {};
+    if (typeof emp.contractEnd !== "string") emp.contractEnd = emp.contractEnd ? String(emp.contractEnd) : "";
+    state.employees[name] = emp;
+  }
+
+  saveState(state);
+}
+
+/* -------------------- Year/Month dropdowns -------------------- */
+
+function ensureYearOptions(yearSelectEl) {
+  const years = new Set([new Date().getFullYear(), ...state.entries.map(e => yearOf(e.date))].filter(Boolean));
+  const sorted = Array.from(years).sort((a, b) => a - b);
+
+  yearSelectEl.innerHTML = sorted.map(y => `<option value="${y}">${y}</option>`).join("");
+  if (!sorted.includes(currentYear)) {
+    yearSelectEl.innerHTML += `<option value="${currentYear}">${currentYear}</option>`;
+  }
+}
+
+function ensureMonthOptions(monthSelectEl, year, selectedYM) {
+  const months = [];
+  for (let m = 1; m <= 12; m++) {
+    const ym = `${year}-${String(m).padStart(2, "0")}`;
+    months.push({ ym, label: monthNameDE(m) });
+  }
+  monthSelectEl.innerHTML = months.map(x => `<option value="${x.ym}">${escapeHtml(x.label)}</option>`).join("");
+  monthSelectEl.value = selectedYM || months[0].ym;
+}
+
+function defaultMonthForYear(year) {
+  const now = new Date();
+  const thisYM = ymOfDate(now);
+  const thisY = Number(thisYM.slice(0, 4));
+  if (year === thisY) return thisYM;
+  return `${year}-01`;
+}
+
+/* -------------------- Contract badge -------------------- */
+
+function renderContractBadge(badgeEl, end) {
+  if (!badgeEl) return;
+
+  if (!end) {
+    badgeEl.textContent = "nicht gesetzt";
+    return;
+  }
+
+  const today = new Date();
+  const endDate = new Date(end + "T00:00:00");
+  const diffDays = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) {
+    badgeEl.textContent = "abgelaufen";
+  } else if (diffDays <= 30) {
+    badgeEl.textContent = `läuft aus in ${diffDays} Tagen`;
+  } else {
+    badgeEl.textContent = "aktiv";
+  }
+}
+
+/* -------------------- Modal helpers -------------------- */
+
+function openModal(modalEl, { newEmpName, newEmpRate, newEmpContractEnd } = {}) {
+  if (!modalEl) return;
+  modalEl.style.display = "flex";
+  modalEl.setAttribute("aria-hidden", "false");
+
+  if (newEmpName) newEmpName.value = "";
+  if (newEmpRate) newEmpRate.value = "";
+  if (newEmpContractEnd) newEmpContractEnd.value = "";
+
+  if (newEmpName) newEmpName.focus();
+}
+
+function closeModal(modalEl) {
+  if (!modalEl) return;
+  modalEl.style.display = "none";
+  modalEl.setAttribute("aria-hidden", "true");
+}
+
+/* -------------------- DOM helpers -------------------- */
+
+function byId(id) {
+  return document.getElementById(id);
+}
+
+function setStatus(statusEl, msg, isError) {
+  if (!statusEl) return;
+  statusEl.textContent = msg;
+  statusEl.className = isError ? "status error" : "status";
+}
+
+/* -------------------- row helpers -------------------- */
+
+function getVal(tr, key) {
+  const el = tr.querySelector(`[data-k="${key}"]`);
+  return el ? el.value : "";
+}
+
+function getChecked(tr, key) {
+  const el = tr.querySelector(`[data-k="${key}"]`);
+  return el ? !!el.checked : false;
+}
+
+/* -------------------- Storage -------------------- */
+
+function loadState() {
+  try {
+    // try current key first
+    let raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      // attempt migration from previous version if present
+      const oldKey = "eventTool.v4.data";
+      const oldRaw = localStorage.getItem(oldKey);
+      if (oldRaw) {
+        try {
+          JSON.parse(oldRaw); // verify
+          raw = oldRaw;
+          localStorage.setItem(STORAGE_KEY, raw);
+          console.log("Migrated data from", oldKey, "to", STORAGE_KEY);
+        } catch {}
+      }
+    }
+    if (!raw) return { entries: [], employees: {} };
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return { entries: [], employees: {} };
+    parsed.entries = Array.isArray(parsed.entries) ? parsed.entries : [];
+    parsed.employees = parsed.employees && typeof parsed.employees === "object" ? parsed.employees : {};
+    return parsed;
+  } catch (err) {
+    console.error("Error loading state, resetting", err);
+    return { entries: [], employees: {} };
+  }
+}
+
+function saveState(s) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+}
+
+/* -------------------- parsing / formatting -------------------- */
+
+function toNumber(v) {
+  const s = String(v ?? "").replace(",", ".").trim();
+  if (!s) return NaN;
+  return Number(s);
+}
+
+function clamp0(n) {
+  return Number.isFinite(n) ? Math.max(0, n) : 0;
+}
+
+function cleanText(v) {
+  return String(v ?? "").trim();
+}
+
+function fmt(n) {
+  const num = Number(n);
+  if (!Number.isFinite(num)) return "0,00";
+  return num.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function monthNameDE(m) {
+  const names = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+  return names[m - 1] || `Monat ${m}`;
+}
+
+function yearOf(dateStr) {
+  if (!dateStr || typeof dateStr !== "string" || dateStr.length < 4) return null;
+  const y = Number(dateStr.slice(0, 4));
+  return Number.isFinite(y) ? y : null;
+}
+
+function toISODate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function ymOfDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  return `${y}-${m}`;
+}
+
+</script>
+</body>
+</html>
