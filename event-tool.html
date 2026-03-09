@@ -46,9 +46,12 @@
     /* Sidebar */
     .sidebar{
       width:320px;
+      flex: 0 0 320px;
+      max-width:320px;
       background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
       border-right: 1px solid var(--border);
       padding:18px 16px;
+      overflow-x: hidden;
     }
 
     .brand{
@@ -63,6 +66,8 @@
       display:grid;
       gap:10px;
       margin-bottom:14px;
+      width:100%;
+      max-width:100%;
     }
     .label{ color:var(--muted); font-size:12px; margin-bottom:6px; }
     .ctrl{
@@ -72,6 +77,7 @@
       padding:10px 10px;
       color:var(--text);
       width:100%;
+      max-width:100%;
       outline:none;
     }
     .ctrl:focus{
@@ -103,6 +109,9 @@
       background: rgba(255,255,255,.02);
       border-radius: var(--r);
       box-shadow: var(--shadow);
+      width:100%;
+      max-width:100%;
+      overflow:hidden;
     }
     .sectionTitle{
       font-size:13px;
@@ -152,22 +161,6 @@
       display:flex;
       align-items:center;
       gap:10px;
-    }
-    .contractIcon{
-      font-size:14px;
-      color: var(--accent2);
-      margin-left:4px;
-      flex-shrink:0;
-      pointer-events: none;
-    }
-    .contractClip{
-      font-size:1.2em;
-      cursor:pointer;
-      color: var(--muted);
-      user-select:none;
-    }
-    .contractClip.hasPdf{
-      color: var(--accent2);
     }
     .empMeta{
       margin-top:8px;
@@ -265,6 +258,7 @@
       font-weight:700;
       transition: transform .08s ease, background .12s ease, border-color .12s ease;
       white-space:nowrap;
+      max-width:100%;
     }
     .btn:hover{
       transform: translateY(-1px);
@@ -533,6 +527,110 @@
       flex-wrap:wrap;
     }
 
+    .savedEventsList{
+      display:grid;
+      gap:10px;
+    }
+    .savedEventRow{
+      display:flex;
+      gap:8px;
+      align-items:stretch;
+    }
+    .savedEventBtn{
+      width:100%;
+      text-align:left;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 12px;
+      cursor:pointer;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+    }
+    .savedEventBtn:hover{
+      border-color: rgba(88,101,242,.45);
+      background: rgba(88,101,242,.08);
+    }
+    .savedEventMeta{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    .savedEventMeta .evt{
+      font-weight:800;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .savedEventMeta .dt{
+      color:var(--muted);
+      font-size:12px;
+    }
+    .savedEventCount{
+      color:var(--muted);
+      font-size:12px;
+      flex:0 0 auto;
+    }
+    .savedEventDelete{
+      flex:0 0 auto;
+      min-width:44px;
+      padding:0 12px;
+      border:1px solid rgba(239,68,68,.4);
+      background: rgba(239,68,68,.12);
+      color:var(--text);
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:800;
+    }
+    .savedEventDelete:hover{
+      background: rgba(239,68,68,.2);
+    }
+
+    .dueBadge{
+      display:inline-block;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:12px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      white-space:nowrap;
+    }
+    .dueGood{
+      color:#22c55e;
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.12);
+    }
+    .dueWarn{
+      color:#f59e0b;
+      border-color: rgba(245,158,11,.45);
+      background: rgba(245,158,11,.12);
+    }
+    .dueLate{
+      color:#ef4444;
+      border-color: rgba(239,68,68,.5);
+      background: rgba(239,68,68,.12);
+    }
+    .duePaid{
+      color:#60a5fa;
+      border-color: rgba(96,165,250,.5);
+      background: rgba(96,165,250,.12);
+    }
+
+    .splitBtns{
+      display:flex;
+      gap:10px;
+      flex-wrap:nowrap;
+    }
+    .splitBtns .btn{
+      flex:1 1 0;
+      min-width:0;
+      width:auto;
+    }
+
     @media (max-width: 980px){
       .sidebar{ display:none; }
       .main{ padding: 14px; }
@@ -617,7 +715,7 @@
               <div class="flex gap-10 mt-10">
                 <button id="addEmployeeBtn" class="btn primary w-full" type="button">+ Mitarbeiter hinzufügen</button>
               </div>
-              <div class="flex gap-10 mt-10">
+              <div class="splitBtns mt-10">
                 <button data-export-backup="1" class="btn ghost w-full" type="button">Daten exportieren</button>
                 <button data-import-backup="1" class="btn ghost w-full" type="button">Daten importieren</button>
               </div>
@@ -670,7 +768,7 @@
                   <th class="right min-w-160">Fahrtzeit (h)</th>
                   <th class="center min-w-110">Charter</th>
                   <th class="center min-w-140">Übernachtung</th>
-                  <th class="noteCol min-w-200">Notiz</th>
+                  <th class="noteCol min-w-200">Tagesvertrag / Notiz</th>
                   <th class="w-70"></th>
                 </tr>
               </thead>
@@ -684,6 +782,15 @@
         <div class="footerInfo">
           Info: Fahrtzeit = 10 €/h · Charter = +50 € · Übernachtung = +20 €
         </div>
+
+        <section class="card">
+          <div class="cardHeader">
+            <h2>Bisherige Veranstaltungen</h2>
+          </div>
+          <div class="cardBody">
+            <div id="savedEventsList" class="savedEventsList"></div>
+          </div>
+        </section>
       </main>
     </div>
   </div>
@@ -716,7 +823,7 @@
             <div class="flex gap-10 mt-10">
               <button id="addEmployeeBtn" class="btn ghost w-full" type="button">+ Mitarbeiter hinzufügen</button>
             </div>
-            <div class="flex gap-10 mt-10">
+            <div class="splitBtns mt-10">
               <button data-export-backup="1" class="btn ghost w-full" type="button">Daten exportieren</button>
               <button data-import-backup="1" class="btn ghost w-full" type="button">Daten importieren</button>
             </div>
@@ -731,7 +838,6 @@
         <div class="titleRow">
           <div style="display:flex; align-items:center; gap:8px;">
             <div id="employeeTitle" class="pageTitle">—</div>
-            <span id="contractClip" class="contractClip" title="Vertrag hinzufügen/öffnen">📎</span>
           </div>
           <div id="employeeSub" class="sub">—</div>
         </div>
@@ -761,15 +867,6 @@
               <div class="field">
                 <div class="label">Status</div>
                 <div id="contractEndBadge" class="pill">nicht gesetzt</div>
-              </div>
-            </div>
-            <!-- contract upload -->
-            <div class="row mt-10">
-              <div class="field" style="flex:1 1 100%;">
-                <div class="label">Vertrag (PDF)</div>
-                <input id="contractFileInput" type="file" accept="application/pdf" class="in" />
-                <div id="contractFileInfo" class="muted" style="margin-top:4px; font-size:12px;">Kein Vertrag</div>
-                <button id="removeContractBtn" class="btn xBtn" type="button" style="display:none; margin-top:6px;">Vertrag entfernen</button>
               </div>
             </div>
           </div>
@@ -885,16 +982,19 @@
     "use strict";
     // password protection (offline, simple prompt)
     const PASSWORD = "1234"; // ändere hier bei Bedarf
-    if (!localStorage.getItem("eventToolUnlocked")) {
+    const SESSION_UNLOCK_KEY = "eventToolUnlocked.session";
+    if (!sessionStorage.getItem(SESSION_UNLOCK_KEY)) {
       const p = prompt("Passwort eingeben:");
       if (p !== PASSWORD) {
         alert("Falsches Passwort");
         throw new Error("Unauthorized");
       }
-      localStorage.setItem("eventToolUnlocked", "1");
+      sessionStorage.setItem(SESSION_UNLOCK_KEY, "1");
     }
 
     const STORAGE_KEY = "eventTool.v5.data";
+    const AUTO_BACKUP_DAILY = true;
+    const AUTO_BACKUP_LAST_KEY = "eventTool.v5.lastAutoBackupDate";
 
     const TRAVEL_RATE = 10;
     const CHARTER_FLAT = 50;
@@ -910,6 +1010,7 @@
     let currentYear = new Date().getFullYear();
     let currentMonthYM = ymOfDate(new Date()); // YYYY-MM
     let searchTerm = "";
+    let currentBatchId = "";
 
     init();
 
@@ -917,6 +1018,7 @@
       normalizeStateShape();
       showPage(PAGE);
       bindBackupControls();
+      maybeRunDailyAutoBackup();
 
       if (PAGE === "dashboard") initDashboard();
       if (PAGE === "employee") initEmployeePage();
@@ -969,6 +1071,7 @@
       const saveBatchBtn = byId("saveBatchBtn");
       const batchBody = byId("batchBody");
       const statusEl = byId("status");
+      const savedEventsListEl = byId("savedEventsList");
 
       const employeeListEl = byId("employeeList");
 
@@ -997,6 +1100,7 @@
 
       renderEmployeeDatalist(employeeListEl);
       renderSidebarEmployees(sidebarEmployees, { activeEmployee: "" });
+      renderSavedEventsList();
 
       // Events
       yearSelect.addEventListener("change", () => {
@@ -1023,6 +1127,8 @@
         if (!batchDate) return setStatus(statusEl, "Bitte Batch-Datum auswählen.", true);
 
         const batchEvent = cleanText(batchEventEl.value);
+        const batchId = currentBatchId || crypto.randomUUID();
+        const batchCreatedAt = new Date().toISOString();
 
         const rows = Array.from(batchBody.querySelectorAll("tr"));
         const newEntries = [];
@@ -1034,9 +1140,10 @@
           const travel = clamp0(toNumber(getVal(tr, "travel")));
           const charter = getChecked(tr, "charter");
           const overnight = getChecked(tr, "overnight");
+          const dayContract = getChecked(tr, "dayContract");
           const note = cleanText(getVal(tr, "note"));
 
-          const hasAnyInput = employee || hours > 0 || travel > 0 || charter || overnight || note;
+          const hasAnyInput = employee || hours > 0 || travel > 0 || charter || overnight || dayContract || note;
           if (!hasAnyInput) continue;
 
           if (!employee) {
@@ -1058,6 +1165,7 @@
             travelHours: travel,
             charter: !!charter,
             overnight: !!overnight,
+            dayContract: !!dayContract,
             note,
             createdAt: new Date().toISOString(),
           });
@@ -1067,8 +1175,18 @@
           return setStatus(statusEl, "Keine Daten zum Speichern gefunden.", true);
         }
 
+        if (currentBatchId) {
+          state.entries = state.entries.filter(e => cleanText(e.batchId || "") !== currentBatchId);
+        }
+
+        newEntries.forEach(e => {
+          e.batchId = batchId;
+          e.batchCreatedAt = batchCreatedAt;
+        });
+
         state.entries.push(...newEntries);
         saveState(state);
+        currentBatchId = "";
 
         // reset rows to 10
         batchBody.innerHTML = "";
@@ -1078,6 +1196,7 @@
         setStatus(statusEl, `${newEntries.length} Einträge gespeichert.`, false);
         renderEmployeeDatalist(employeeListEl);
         renderSidebarEmployees(sidebarEmployees, { activeEmployee: "" });
+        renderSavedEventsList();
       });
 
       // Modal handlers
@@ -1102,7 +1221,7 @@
         }
 
         if (!state.employees[name]) {
-          state.employees[name] = { hourlyRate: 0, contractStart: "", contractEnd: "", payoutCaps: {} };
+          state.employees[name] = { hourlyRate: 0, dayContract: false, dayContractPaidEntries: {}, contractStart: "", contractEnd: "", payoutCaps: {} };
         }
 
         // Update fields (wenn leer gelassen: bestehendes behalten)
@@ -1115,8 +1234,129 @@
 
         renderEmployeeDatalist(employeeListEl);
         renderSidebarEmployees(sidebarEmployees, { activeEmployee: "" });
+        renderSavedEventsList();
         closeModal(addEmployeeModal);
       });
+
+      function getBatchKey(e) {
+        const id = cleanText(e.batchId || "");
+        if (id) return `id:${id}`;
+        const date = cleanText(e.date || "");
+        const evt = cleanText(e.event || "");
+        const created = cleanText(e.batchCreatedAt || "");
+        if (created) return `legacy:${date}|${evt}|${created}`;
+        return `legacy:${date}|${evt}`;
+      }
+
+      function groupSavedEvents() {
+        const groups = new Map();
+        for (const e of state.entries) {
+          const key = getBatchKey(e);
+          if (!groups.has(key)) {
+            groups.set(key, {
+              key,
+              batchId: cleanText(e.batchId || ""),
+              date: cleanText(e.date || ""),
+              event: cleanText(e.event || ""),
+              entries: []
+            });
+          }
+          groups.get(key).entries.push(e);
+        }
+
+        return Array.from(groups.values()).sort((a, b) => {
+          const da = cleanText(a.date);
+          const db = cleanText(b.date);
+          if (db !== da) return db.localeCompare(da);
+          return cleanText(b.event).localeCompare(cleanText(a.event));
+        });
+      }
+
+      function openSavedEvent(group) {
+        if (!group || !group.entries || !group.entries.length) return;
+        currentBatchId = cleanText(group.batchId || "");
+        batchDateEl.value = cleanText(group.date || "");
+        batchEventEl.value = cleanText(group.event || "");
+
+        batchBody.innerHTML = "";
+        group.entries.forEach(e => {
+          addBatchRow(batchBody);
+          const tr = batchBody.lastElementChild;
+          if (!tr) return;
+          const empEl = tr.querySelector('[data-k="employee"]');
+          const hoursEl = tr.querySelector('[data-k="hours"]');
+          const travelEl = tr.querySelector('[data-k="travel"]');
+          const charterEl = tr.querySelector('[data-k="charter"]');
+          const overnightEl = tr.querySelector('[data-k="overnight"]');
+          const dayContractEl = tr.querySelector('[data-k="dayContract"]');
+          const noteEl = tr.querySelector('[data-k="note"]');
+          if (empEl) empEl.value = cleanText(e.employee || "");
+          if (hoursEl) hoursEl.value = String(clamp0(Number(e.hours || 0)) || "");
+          if (travelEl) travelEl.value = String(clamp0(Number(e.travelHours || 0)) || "");
+          if (charterEl) charterEl.checked = !!e.charter;
+          if (overnightEl) overnightEl.checked = !!e.overnight;
+          if (dayContractEl) dayContractEl.checked = !!e.dayContract;
+          if (noteEl) noteEl.value = cleanText(e.note || "");
+        });
+
+        setStatus(statusEl, `Veranstaltung geladen: ${group.event || "(ohne Titel)"}`, false);
+      }
+
+      function renderSavedEventsList() {
+        if (!savedEventsListEl) return;
+        const groups = groupSavedEvents();
+        if (!groups.length) {
+          savedEventsListEl.innerHTML = `<div class="muted smallMsg">Noch keine Veranstaltungen gespeichert.</div>`;
+          return;
+        }
+
+        savedEventsListEl.innerHTML = groups.map(g => `
+          <div class="savedEventRow">
+            <button type="button" class="savedEventBtn" data-open-batch="${escapeHtml(g.key)}">
+              <div class="savedEventMeta">
+                <span class="evt">${escapeHtml(g.event || "(ohne Titel)")}</span>
+                <span class="dt">${escapeHtml(g.date || "ohne Datum")}</span>
+              </div>
+              <span class="savedEventCount">${g.entries.length} Zeilen</span>
+            </button>
+            <button type="button" class="savedEventDelete" data-del-batch="${escapeHtml(g.key)}">X</button>
+          </div>
+        `).join("");
+
+        savedEventsListEl.querySelectorAll("[data-open-batch]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const key = cleanText(btn.getAttribute("data-open-batch"));
+            const group = groups.find(x => x.key === key);
+            openSavedEvent(group);
+          });
+        });
+
+        savedEventsListEl.querySelectorAll("[data-del-batch]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const key = cleanText(btn.getAttribute("data-del-batch"));
+            const group = groups.find(x => x.key === key);
+            if (!group) return;
+
+            const title = group.event || "(ohne Titel)";
+            const ok = confirm(`Veranstaltung "${title}" vom ${group.date || "ohne Datum"} wirklich löschen?`);
+            if (!ok) return;
+
+            state.entries = state.entries.filter(e => getBatchKey(e) !== group.key);
+            if (currentBatchId && group.batchId && currentBatchId === group.batchId) {
+              currentBatchId = "";
+              batchDateEl.value = toISODate(new Date());
+              batchEventEl.value = "";
+              batchBody.innerHTML = "";
+              for (let i = 0; i < 10; i++) addBatchRow(batchBody);
+            }
+
+            saveState(state);
+            renderSavedEventsList();
+            renderSidebarEmployees(sidebarEmployees, { activeEmployee: "" });
+            setStatus(statusEl, "Veranstaltung gelöscht.", false);
+          });
+        });
+      }
     }
 
     /* -------------------- Employee Page -------------------- */
@@ -1170,60 +1410,6 @@
       const toggleAllMonthsBtn = root.querySelector("#toggleAllMonthsBtn");
       const deleteEmployeeBtn = root.querySelector("#deleteEmployeeBtn");
 
-      // contract elements
-      const contractClip = root.querySelector("#contractClip");
-      const contractFileInput = root.querySelector("#contractFileInput");
-      const contractFileInfo = root.querySelector("#contractFileInfo");
-      const removeContractBtn = root.querySelector("#removeContractBtn");
-
-      function refreshContractUI() {
-        const pdf = state.employees[employeeName].contractPdf;
-        if (pdf && pdf.data) {
-          contractFileInfo.textContent = pdf.name || "(unbekannt)";
-          removeContractBtn.style.display = "inline-block";
-          contractClip.classList.add("hasPdf");
-          contractClip.title = "Vertrag öffnen";
-        } else {
-          contractFileInfo.textContent = "Kein Vertrag";
-          removeContractBtn.style.display = "none";
-          contractClip.classList.remove("hasPdf");
-          contractClip.title = "Vertrag hinzufügen";
-        }
-      }
-
-      contractClip.addEventListener("click", () => {
-        const pdf = state.employees[employeeName].contractPdf;
-        if (pdf && pdf.data) {
-          window.open(pdf.data, "_blank");
-        } else {
-          contractFileInput.click();
-        }
-      });
-
-      contractFileInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-          const dataUrl = reader.result;
-          ensureEmployee(employeeName);
-          state.employees[employeeName].contractPdf = { name: file.name, data: dataUrl };
-          saveState(state);
-          refreshContractUI();
-          renderSidebarEmployees(sidebarEmployees, { activeEmployee: employeeName });
-        };
-        reader.readAsDataURL(file);
-      });
-
-      removeContractBtn.addEventListener("click", () => {
-        if (!confirm("Vertrag wirklich entfernen?")) return;
-        delete state.employees[employeeName].contractPdf;
-        saveState(state);
-        refreshContractUI();
-        renderSidebarEmployees(sidebarEmployees, { activeEmployee: employeeName });
-      });
-
-
       // Year defaults from query
       currentYear = Number(qs2.get("year") || new Date().getFullYear());
       ensureYearOptions(yearSelect);
@@ -1244,9 +1430,6 @@
 
       // Sidebar initial
       renderSidebarEmployees(sidebarEmployees, { activeEmployee: employeeName });
-
-      // contract UI initial state
-      refreshContractUI();
 
       // Back
       backToDashboardBtn.addEventListener("click", () => {
@@ -1341,7 +1524,7 @@
         }
 
         if (!state.employees[name]) {
-          state.employees[name] = { hourlyRate: 0, contractStart: "", contractEnd: "", payoutCaps: {} };
+          state.employees[name] = { hourlyRate: 0, dayContract: false, dayContractPaidEntries: {}, contractStart: "", contractEnd: "", payoutCaps: {} };
         }
 
         if (Number.isFinite(rate)) state.employees[name].hourlyRate = rate;
@@ -1390,9 +1573,12 @@
         const hr = Number(emp.hourlyRate || 0);
         const caps = emp.payoutCaps || {};
         const contractStart = cleanText(emp.contractStart || "");
+        const dayContract = !!emp.dayContract;
 
         const contractEnd = cleanText(emp.contractEnd || "");
-        const ledger = buildMonthlyLedgerCapFixed(name, currentYear, entriesOfYear, hr, caps, contractStart, contractEnd);
+        const ledger = dayContract
+          ? buildMonthlyLedgerDayContract(name, currentYear, entriesOfYear, hr, emp.dayContractPaidEntries || {})
+          : buildMonthlyLedgerCapFixed(name, currentYear, entriesOfYear, hr, caps, contractStart, contractEnd);
         const m = ledger.find(x => x.ym === currentMonthYM) || { baseDue: 0, paid: 0, carryOut: 0 };
         const cap = clamp0(Number(caps?.[currentMonthYM] || 0));
         const saldo = m.carryOut;
@@ -1402,8 +1588,6 @@
 
         const isActive = name === activeEmployee;
         const href = `?page=employee&name=${encodeURIComponent(name)}&year=${encodeURIComponent(String(currentYear))}`;
-
-        const hasPdf = !!emp.contractPdf && !!emp.contractPdf.data;
 
         // collect up to three unique event names from this year
         const evts = entriesOfYear
@@ -1420,13 +1604,12 @@
               <div class="empName">
                 <span class="dot" style="background:${dotColor};"></span>
                 <span class="truncate">${escapeHtml(name)}</span>
-                ${hasPdf ? '<span class="contractIcon">📎</span>' : ''}
               </div>
               <div class="saldo ${saldoClass}">${fmt(saldo)} €</div>
             </div>
             <div class="empMeta">
               <div>Soll: <strong class="highlight">${fmt(m.baseDue)} €</strong></div>
-              <div>Cap: <strong class="highlight">${cap > 0 ? `${fmt(cap)} €` : "—"}</strong></div>
+              <div>Cap: <strong class="highlight">${dayContract ? "Tagesvertrag" : (cap > 0 ? `${fmt(cap)} €` : "—")}</strong></div>
             </div>
             ${evtText ? `<div class="empEvents">${escapeHtml(evtText)}</div>` : ""}
           </a>
@@ -1438,12 +1621,15 @@
   const emp = state.employees[employeeName];
   const hr = Number(emp.hourlyRate || 0);
   const caps = emp.payoutCaps || {};
+  const dayContract = !!emp.dayContract;
   const contractStart = cleanText(emp.contractStart || "");
   const entriesOfYear = state.entries.filter(e => yearOf(e.date) === currentYear);
   const entriesEmpYear = entriesOfYear.filter(e => e.employee === employeeName);
-
   const contractEnd = cleanText(emp.contractEnd || "");
-  const ledger = buildMonthlyLedgerCapFixed(employeeName, currentYear, entriesOfYear, hr, caps, contractStart, contractEnd);
+
+  const ledger = dayContract
+    ? buildMonthlyLedgerDayContract(employeeName, currentYear, entriesOfYear, hr, emp.dayContractPaidEntries || {})
+    : buildMonthlyLedgerCapFixed(employeeName, currentYear, entriesOfYear, hr, caps, contractStart, contractEnd);
 
   const sumDue = ledger.reduce((s, m) => s + m.baseDue, 0);
   const sumPaid = ledger.reduce((s, m) => s + m.paid, 0);
@@ -1452,7 +1638,6 @@
   kpiDueYear.textContent = `${fmt(sumDue)} €`;
   kpiPaidYear.textContent = `${fmt(sumPaid)} €`;
 
-  // saldo styling on KPI
   kpiSaldoYear.textContent = `${fmt(saldoEnd)} €`;
   kpiSaldoYear.classList.remove("pos", "neg", "zero");
   if (saldoEnd < 0) {
@@ -1505,25 +1690,38 @@
         </summary>
 
         <div class="monthBody">
-          <div class="capRow">
-            <div class="field">
-              <div class="label">Cap (fixe Auszahlung) €</div>
-              <input
-                class="in"
-                type="number" step="0.01" min="0"
-                data-cap="1"
-                data-emp="${escapeHtml(employeeName)}"
-                data-ym="${escapeHtml(m.ym)}"
-                value="${cap > 0 ? String(cap) : ""}"
-                placeholder="z.B. 600"
-              />
+          ${dayContract ? `
+            <div class="capRow">
+              <div class="pillRow">
+                <span class="pill">Tagesvertrag: Auszahlung je Schicht (nach 10 Tagen)</span>
+                <span class="pill">Ausgezahlt markieren, sobald Zahlung erfolgt ist.</span>
+              </div>
+              <div class="pillRow">
+                <span class="pill">Auszahlung: <strong>${fmt(m.paid)} €</strong></span>
+                <span class="pill">Saldo: <strong class="saldo ${saldoClass}">${fmt(m.carryOut)} €</strong></span>
+              </div>
             </div>
+          ` : `
+            <div class="capRow">
+              <div class="field">
+                <div class="label">Cap (fixe Auszahlung) €</div>
+                <input
+                  class="in"
+                  type="number" step="0.01" min="0"
+                  data-cap="1"
+                  data-emp="${escapeHtml(employeeName)}"
+                  data-ym="${escapeHtml(m.ym)}"
+                  value="${cap > 0 ? String(cap) : ""}"
+                  placeholder="z.B. 600"
+                />
+              </div>
 
-            <div class="pillRow">
-              <span class="pill">Auszahlung: <strong>${fmt(m.paid)} €</strong></span>
-              <span class="pill">Saldo: <strong class="saldo ${saldoClass}">${fmt(m.carryOut)} €</strong></span>
+              <div class="pillRow">
+                <span class="pill">Auszahlung: <strong>${fmt(m.paid)} €</strong></span>
+                <span class="pill">Saldo: <strong class="saldo ${saldoClass}">${fmt(m.carryOut)} €</strong></span>
+              </div>
             </div>
-          </div>
+          `}
 
           ${m.entries.length ? `
             <div class="overflow-auto mt-10">
@@ -1533,12 +1731,14 @@
                     <th>Datum</th>
                     <th>Event</th>
                     <th class="right">Stunden</th>
-                    <th class="right">Fahrtzeit</th>
-                    <th class="center">Charter</th>
-                    <th class="center">Übernachtung</th>
-                    <th class="right">Lohn (€)</th>
-                    <th class="right">Pauschalen (€)</th>
-                    <th class="right">Summe (€)</th>
+                        <th class="right">Fahrtzeit</th>
+                        <th class="center">Charter</th>
+                        <th class="center">Übernachtung</th>
+                        <th class="center">TV</th>
+                        <th class="right">Lohn (€)</th>
+                        <th class="right">Pauschalen (€)</th>
+                        <th class="right">Summe (€)</th>
+                    ${dayContract ? `<th class="center">Ausgezahlt</th><th>Fällig in</th>` : ``}
                     <th>Notiz</th>
                   </tr>
                 </thead>
@@ -1548,12 +1748,19 @@
                       <td>${escapeHtml(e.date)}</td>
                       <td>${escapeHtml(e.event || "")}</td>
                       <td class="right">${fmt(e.hours)}</td>
-                      <td class="right">${fmt(e.travelHours)}</td>
-                      <td class="center">${e.charter ? "Ja" : "Nein"}</td>
-                      <td class="center">${e.overnight ? "Ja" : "Nein"}</td>
-                      <td class="right">${fmt(e._wagePart)} €</td>
+                          <td class="right">${fmt(e.travelHours)}</td>
+                          <td class="center">${e.charter ? "Ja" : "Nein"}</td>
+                          <td class="center">${e.overnight ? "Ja" : "Nein"}</td>
+                          <td class="center">${e.dayContract ? "Ja" : "Nein"}</td>
+                          <td class="right">${fmt(e._wagePart)} €</td>
                       <td class="right">${fmt(e._allowPart)} €</td>
                       <td class="right"><strong>${fmt(e._lineTotal)} €</strong></td>
+                      ${dayContract ? `
+                        <td class="center">
+                          <input type="checkbox" class="checkbox-scale" data-day-paid="1" data-emp="${escapeHtml(employeeName)}" data-entry-id="${escapeHtml(e.id || "")}" ${e._dayPaid ? "checked" : ""} />
+                        </td>
+                        <td><span class="dueBadge ${escapeHtml(e._dayDueClass || "dueWarn")}">${escapeHtml(e._dayDueText || "")}</span></td>
+                      ` : ``}
                       <td>${escapeHtml(e.note || "")}</td>
                     </tr>
                   `).join("")}
@@ -1566,7 +1773,6 @@
     `;
   }).join("");
 
-  // Wire cap inputs
   monthsContainer.querySelectorAll('input[data-cap="1"]').forEach(inp => {
     inp.addEventListener("change", () => {
       const ym = inp.getAttribute("data-ym");
@@ -1576,7 +1782,6 @@
       ensureEmployee(empName);
       state.employees[empName].payoutCaps = state.employees[empName].payoutCaps || {};
       if (Number.isFinite(val) && val > 0) {
-        // Cap applies from selected month forward, never to past months.
         propagateCapForward(empName, ym, val);
       } else {
         state.employees[empName].payoutCaps[ym] = 0;
@@ -1584,6 +1789,23 @@
 
       saveState(state);
       renderEmployeeAkte(empName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer);
+    });
+  });
+
+  monthsContainer.querySelectorAll('input[data-day-paid="1"]').forEach(inp => {
+    inp.addEventListener("change", () => {
+      const empName = inp.getAttribute("data-emp");
+      const entryId = inp.getAttribute("data-entry-id");
+      const checked = !!inp.checked;
+      ensureEmployee(empName);
+      const e = state.employees[empName];
+      e.dayContractPaidEntries = e.dayContractPaidEntries && typeof e.dayContractPaidEntries === "object" ? e.dayContractPaidEntries : {};
+      if (checked) e.dayContractPaidEntries[entryId] = true;
+      else delete e.dayContractPaidEntries[entryId];
+      saveState(state);
+      renderEmployeeAkte(empName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer);
+      const side = document.querySelector("#employeePage #sidebarEmployees");
+      if (side) renderSidebarEmployees(side, { activeEmployee: empName });
     });
   });
 }
@@ -1617,7 +1839,13 @@ function addBatchRow(batchBody) {
     </td>
 
     <td class="noteCol">
-      <input data-k="note" class="in" placeholder="Optional" />
+      <div style="display:flex; align-items:center; gap:8px;">
+        <label style="display:flex; align-items:center; gap:6px; white-space:nowrap; color:var(--muted); font-size:12px;">
+          <input data-k="dayContract" type="checkbox" class="checkbox-scale" />
+          TV
+        </label>
+        <input data-k="note" class="in" placeholder="Optional" />
+      </div>
     </td>
 
     <td class="right">
@@ -1699,6 +1927,73 @@ function buildMonthlyLedgerCapFixed(employee, year, entriesYear, hourlyRate, pay
   return months;
 }
 
+function dayContractDaysLeft(dateStr) {
+  if (!dateStr) return null;
+  const base = new Date(String(dateStr) + "T00:00:00");
+  if (Number.isNaN(base.getTime())) return null;
+  const dueDate = new Date(base);
+  dueDate.setDate(dueDate.getDate() + 10);
+  const today = new Date();
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  return Math.ceil((dueDate - todayStart) / (1000 * 60 * 60 * 24));
+}
+
+function dayContractDueText(entry, paid) {
+  if (paid) return { text: "Ausgezahlt", cls: "duePaid" };
+  const left = dayContractDaysLeft(entry?.date);
+  if (left === null) return { text: "unbekannt", cls: "dueWarn" };
+  if (left > 3) return { text: `in ${left} Tagen`, cls: "dueGood" };
+  if (left > 0) return { text: `in ${left} Tagen`, cls: "dueWarn" };
+  if (left === 0) return { text: "heute fÃ¤llig", cls: "dueWarn" };
+  return { text: `${Math.abs(left)} Tage Ã¼berfÃ¤llig`, cls: "dueLate" };
+}
+
+function buildMonthlyLedgerDayContract(employee, year, entriesYear, hourlyRate, paidMap = {}) {
+  const months = [];
+  let carry = 0;
+  const map = paidMap && typeof paidMap === "object" ? paidMap : {};
+
+  for (let m = 1; m <= 12; m++) {
+    const ym = `${year}-${String(m).padStart(2, "0")}`;
+
+    const list = entriesYear
+      .filter(e => e.employee === employee && String(e.date || "").startsWith(ym))
+      .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+
+    for (const e of list) {
+      e._wagePart = (e.hours || 0) * hourlyRate;
+      e._allowPart =
+        (e.travelHours || 0) * TRAVEL_RATE +
+        (e.charter ? CHARTER_FLAT : 0) +
+        (e.overnight ? OVERNIGHT_FLAT : 0);
+      e._lineTotal = e._wagePart + e._allowPart;
+      e._dayPaid = !!map[String(e.id || "")];
+      const dueInfo = dayContractDueText(e, e._dayPaid);
+      e._dayDueText = dueInfo.text;
+      e._dayDueClass = dueInfo.cls;
+    }
+
+    const baseDue = list.reduce((s, e) => s + (e._lineTotal || 0), 0);
+    const paid = list.reduce((s, e) => s + (e._dayPaid ? (e._lineTotal || 0) : 0), 0);
+    const carryOut = carry + baseDue - paid;
+
+    months.push({
+      ym,
+      label: monthNameDE(m),
+      entries: list,
+      baseDue,
+      paid,
+      carryIn: carry,
+      carryOut,
+      cap: 0
+    });
+
+    carry = carryOut;
+  }
+
+  return months;
+}
+
 function nextYM(ym) {
   const m = String(ym || "").match(/^(\d{4})-(\d{2})$/);
   if (!m) return "";
@@ -1756,7 +2051,7 @@ function ensureEmployee(name, { confirmCreate = false } = {}) {
     if (!ok) return false;
   }
 
-  state.employees[name] = { hourlyRate: 0, contractStart: "", contractEnd: "", payoutCaps: {} };
+  state.employees[name] = { hourlyRate: 0, dayContract: false, dayContractPaidEntries: {}, contractStart: "", contractEnd: "", payoutCaps: {} };
   saveState(state);
   return true;
 }
@@ -1768,16 +2063,17 @@ function normalizeStateShape() {
   for (const name of Object.keys(state.employees)) {
     const emp = state.employees[name] || {};
     if (typeof emp.hourlyRate !== "number") emp.hourlyRate = clamp0(Number(emp.hourlyRate || 0));
+    if (typeof emp.dayContract !== "boolean") emp.dayContract = !!emp.dayContract;
+    if (!emp.dayContractPaidEntries || typeof emp.dayContractPaidEntries !== "object") emp.dayContractPaidEntries = {};
     if (!emp.payoutCaps || typeof emp.payoutCaps !== "object") emp.payoutCaps = {};
     if (typeof emp.contractStart !== "string") emp.contractStart = emp.contractStart ? String(emp.contractStart) : "";
     if (typeof emp.contractEnd !== "string") emp.contractEnd = emp.contractEnd ? String(emp.contractEnd) : "";
-    trimCapsToContractEnd(emp);
-    // normalize contract PDF structure if present
-    if (emp.contractPdf && typeof emp.contractPdf === "object") {
-      if (typeof emp.contractPdf.data !== "string") {
-        delete emp.contractPdf;
-      }
+    if (emp.dayContract) {
+      emp.contractStart = "";
+      emp.contractEnd = "";
+      emp.payoutCaps = {};
     }
+    trimCapsToContractEnd(emp);
     state.employees[name] = emp;
   }
 
@@ -1908,6 +2204,47 @@ function exportStateBackup() {
   }
 }
 
+function exportStateBackupSilently(suffix = "") {
+  try {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      storageKey: STORAGE_KEY,
+      data: state
+    };
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const ts = toISODate(new Date()).replaceAll("-", "");
+    const sfx = suffix ? `-${suffix}` : "";
+    a.href = url;
+    a.download = `event-tool-backup-${ts}${sfx}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    return true;
+  } catch (err) {
+    console.error("Auto-backup fehlgeschlagen:", err);
+    return false;
+  }
+}
+
+function maybeRunDailyAutoBackup() {
+  if (!AUTO_BACKUP_DAILY) return;
+  const today = toISODate(new Date());
+  const last = localStorage.getItem(AUTO_BACKUP_LAST_KEY) || "";
+  if (last === today) return;
+
+  // only auto-backup when there is meaningful data
+  const hasData = (Array.isArray(state.entries) && state.entries.length > 0)
+    || (state.employees && Object.keys(state.employees).length > 0);
+  if (!hasData) return;
+
+  const ok = exportStateBackupSilently("auto");
+  if (ok) localStorage.setItem(AUTO_BACKUP_LAST_KEY, today);
+}
+
 async function importStateBackupFile(file) {
   try {
     const text = await file.text();
@@ -2011,6 +2348,8 @@ function ymOfDate(d) {
 </script>
 </body>
 </html>
+
+
 
 
 
