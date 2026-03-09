@@ -83,39 +83,6 @@
       background: rgba(255,255,255,.03);
       color: var(--text);
     }
-
-    /* helper grids for KPI displays */
-    .grid3, .grid4 {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px,1fr));
-      gap: 14px;
-    }
-
-    /* KPI box styling */
-    .kpi {
-      padding: 12px 14px;
-      background: rgba(255,255,255,.02);
-      border: 1px solid var(--border);
-      border-radius: var(--r2);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .kpi .k {
-      font-size: 12px;
-      color: var(--muted);
-      text-align: center;
-    }
-    .kpi .v {
-      font-size: 18px;
-      font-weight: 700;
-      margin-top: 6px;
-      text-align: center;
-    }
-    /* ensure saldo value inherits styling but keeps its color classes */
-    .kpi .v.saldo { font-size: 20px; }
-
     select.ctrl option {
       background: var(--card2);
       color: var(--text);
@@ -150,6 +117,9 @@
       padding-right:4px;
     }
     .empItem{
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
       border:1px solid var(--border);
       background: rgba(255,255,255,.02);
       border-radius: 14px;
@@ -157,6 +127,7 @@
       margin-bottom:10px;
       cursor:pointer;
       transition: transform .08s ease, border-color .12s ease, background .12s ease;
+      min-height: 90px; /* make room so events can sit at bottom */
     }
     .empItem:hover{
       transform: translateY(-1px);
@@ -182,6 +153,22 @@
       align-items:center;
       gap:10px;
     }
+    .contractIcon{
+      font-size:14px;
+      color: var(--accent2);
+      margin-left:4px;
+      flex-shrink:0;
+      pointer-events: none;
+    }
+    .contractClip{
+      font-size:1.2em;
+      cursor:pointer;
+      color: var(--muted);
+      user-select:none;
+    }
+    .contractClip.hasPdf{
+      color: var(--accent2);
+    }
     .empMeta{
       margin-top:8px;
       display:flex;
@@ -190,13 +177,15 @@
       font-size:12px;
       color:var(--muted);
     }
-    .empStats{
-      margin-top:4px;
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
+    .empEvents{
+      margin-top:6px;
       font-size:11px;
       color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:100%;
+      margin-top:auto;
     }
     .saldo{
       font-weight:900;
@@ -255,35 +244,6 @@
       align-items:center;
       width:100%;
     }
-
-    /* saved batches list styling */
-    .savedBatchesList {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .batchItem {
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: var(--r2);
-      background: rgba(255,255,255,.03);
-      cursor: pointer;
-      transition: background .12s ease, transform .08s ease;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .batchItem:hover {
-      background: rgba(88,101,242,.06);
-      transform: translateY(-1px);
-    }
-    .batchItem .info {
-      display: flex;
-      flex-direction: column;
-    }
-    .batchItem .info .evt { font-weight: 700; }
-    .batchItem .info .dt { font-size: 12px; opacity: .75; }
-    .batchItem .count { font-size: 12px; color: var(--muted); }
     .headerControls .group{
       display:flex;
       gap:10px;
@@ -449,9 +409,142 @@
       opacity:.85;
     }
 
+    .cardBody{
+      padding:16px;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap:12px;
+    }
+    .field{
+      min-width:0;
+    }
+
+    .grid3{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap:12px;
+    }
+    .kpi{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      background: linear-gradient(180deg, rgba(88,101,242,.08), rgba(255,255,255,.02));
+    }
+    .k{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+    .v{
+      font-size:32px;
+      font-weight:900;
+      line-height:1.05;
+      letter-spacing:.2px;
+    }
+
+    .yearMetaGrid{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:10px;
+    }
+    .metaKpi{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px 12px;
+      background: rgba(255,255,255,.02);
+    }
+    .metaKpi .mk{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .metaKpi .mv{
+      margin-top:4px;
+      font-size:20px;
+      font-weight:800;
+    }
+
+    .month{
+      border:1px solid var(--border);
+      border-radius:12px;
+      margin-bottom:10px;
+      background: rgba(255,255,255,.02);
+      overflow:hidden;
+    }
+    .month summary{
+      cursor:pointer;
+      list-style:none;
+      padding:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      font-weight:700;
+    }
+    .month summary::-webkit-details-marker{
+      display:none;
+    }
+    .month summary::before{
+      content:"\25B8";
+      margin-right:8px;
+      color:var(--muted);
+      display:inline-block;
+      transform: translateY(-1px);
+    }
+    .month[open] summary::before{
+      content:"\25BE";
+    }
+    .monthBody{
+      padding:0 12px 12px;
+      border-top:1px solid var(--border);
+    }
+    .capRow{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:12px;
+      flex-wrap:wrap;
+      padding-top:12px;
+    }
+    .pill{
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      background: rgba(255,255,255,.03);
+    }
+
+    .dangerZone{
+      border-top:1px solid var(--border);
+      padding:16px;
+      background: rgba(239,68,68,.04);
+    }
+    .dangerZone h3{
+      margin:0 0 8px;
+    }
+
+    .monthHeaderActions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
     @media (max-width: 980px){
       .sidebar{ display:none; }
       .main{ padding: 14px; }
+      .grid3{
+        grid-template-columns: 1fr;
+      }
+      .yearMetaGrid{
+        grid-template-columns: 1fr;
+      }
+      .month summary{
+        flex-direction:column;
+      }
     }
 
     /* utility helpers for consistent spacing/layout */
@@ -584,17 +677,6 @@
           <div id="status" class="status"></div>
         </section>
 
-        <section class="card" id="savedBatchesSection">
-          <div class="cardHeader">
-            <h2>Gespeicherte Veranstaltungen</h2>
-          </div>
-          <div class="cardBody">
-            <div id="savedBatches" class="savedBatchesList">
-              <!-- dynamically populated -->
-            </div>
-          </div>
-        </section>
-
         <div class="footerInfo">
           Info: Fahrtzeit = 10 €/h · Charter = +50 € · Übernachtung = +20 €
         </div>
@@ -639,10 +721,11 @@
 
       <main class="main">
         <div class="titleRow">
-          <div>
+          <div style="display:flex; align-items:center; gap:8px;">
             <div id="employeeTitle" class="pageTitle">—</div>
-            <div id="employeeSub" class="sub">—</div>
+            <span id="contractClip" class="contractClip" title="Vertrag hinzufügen/öffnen">📎</span>
           </div>
+          <div id="employeeSub" class="sub">—</div>
         </div>
 
         <section class="card">
@@ -658,6 +741,11 @@
               </div>
 
               <div class="field">
+                <div class="label">Vertragsbeginn (erste Auszahlung ab)</div>
+                <input id="contractStartInput" class="in" type="date" />
+              </div>
+
+              <div class="field">
                 <div class="label">Vertrag befristet bis</div>
                 <input id="contractEndInput" class="in" type="date" />
               </div>
@@ -667,21 +755,26 @@
                 <div id="contractEndBadge" class="pill">nicht gesetzt</div>
               </div>
             </div>
+            <!-- contract upload -->
+            <div class="row mt-10">
+              <div class="field" style="flex:1 1 100%;">
+                <div class="label">Vertrag (PDF)</div>
+                <input id="contractFileInput" type="file" accept="application/pdf" class="in" />
+                <div id="contractFileInfo" class="muted" style="margin-top:4px; font-size:12px;">Kein Vertrag</div>
+                <button id="removeContractBtn" class="btn xBtn" type="button" style="display:none; margin-top:6px;">Vertrag entfernen</button>
+              </div>
+            </div>
           </div>
         </section>
 
         <section class="card">
           <div class="cardHeader">
             <h2>Monate & Einträge</h2>
-            <button id="toggleMonthsBtn" class="btn ghost" style="margin-left:auto;">Alle Monate anzeigen ▾</button>
+            <div class="monthHeaderActions">
+              <button id="toggleAllMonthsBtn" class="btn ghost" type="button">Alle Monate aufklappen</button>
+            </div>
           </div>
-          <div class="hint">
-            Caps gelten ab dem Monat, in dem sie eingetragen werden, automatisch für alle folgenden Monate (und werden
-            angepasst, wenn du das Vertragsende später änderst). Du kannst später einzelne Monate anpassen.
-          </div>
-          <div class="cardBody">
-            <div id="monthsContainer"></div>
-          </div>
+          <div id="monthsContainer" class="cardBody"></div>
 
           <div class="dangerZone">
             <h3>Gefahrenbereich</h3>
@@ -710,23 +803,22 @@
                 <div id="kpiSaldoLabel" class="muted" style="margin-top:6px;">Ausgeglichen</div>
               </div>
             </div>
-            <!-- additional yearly statistics -->
-            <div class="grid4 mt-10">
-              <div class="kpi">
-                <div class="k">Std (Jahr)</div>
-                <div id="kpiHoursYear" class="v">0&nbsp;h</div>
+            <div class="yearMetaGrid">
+              <div class="metaKpi">
+                <div class="mk">Charterpauschale (Jahr)</div>
+                <div id="kpiCharterYear" class="mv">0,00 €</div>
               </div>
-              <div class="kpi">
-                <div class="k">Fahrt (Jahr)</div>
-                <div id="kpiTravelYear" class="v">0&nbsp;h</div>
+              <div class="metaKpi">
+                <div class="mk">Fahrtzeit (Jahr)</div>
+                <div id="kpiTravelYear" class="mv">0,00 h</div>
               </div>
-              <div class="kpi">
-                <div class="k">Charter (Jahr)</div>
-                <div id="kpiCharterYear" class="v">0</div>
+              <div class="metaKpi">
+                <div class="mk">Gearbeitete Stunden (Jahr)</div>
+                <div id="kpiHoursYear" class="mv">0,00 h</div>
               </div>
-              <div class="kpi">
-                <div class="k">Übern. (Jahr)</div>
-                <div id="kpiOvernightYear" class="v">0</div>
+              <div class="metaKpi">
+                <div class="mk">Übernachtung auf dem Schiff (Jahr)</div>
+                <div id="kpiOvernightYear" class="mv">0</div>
               </div>
             </div>
           </div>
@@ -755,6 +847,11 @@
         <div>
           <div class="label">Stundenlohn (optional)</div>
           <input id="newEmpRate" class="in" type="number" step="0.01" min="0" placeholder="z.B. 16.00" />
+        </div>
+
+        <div>
+          <div class="label">Vertragsbeginn (optional)</div>
+          <input id="newEmpContractStart" class="in" type="date" />
         </div>
 
         <div>
@@ -800,13 +897,10 @@
     if (PAGE === "employee" && !qs.get("name")) PAGE = "dashboard";
     document.body.dataset.page = PAGE;
 
-    let state = loadState(); // { entries:[], employees:{[name]:{hourlyRate:number, contractEnd?:string, payoutCaps:{[YYYY-MM]:number}}}}
+    let state = loadState(); // { entries:[], employees:{[name]:{hourlyRate:number, contractStart?:string, contractEnd?:string, payoutCaps:{[YYYY-MM]:number}}}}
     let currentYear = new Date().getFullYear();
     let currentMonthYM = ymOfDate(new Date()); // YYYY-MM
     let searchTerm = "";
-
-    // dashboard-level state for batches (must be declared before init())
-    let currentBatchId = null; // when non-null we're editing an existing batch
 
     init();
 
@@ -832,31 +926,12 @@
     }
 
     /* -------------------- Dashboard -------------------- */
-    // (currentBatchId already defined above init() to avoid TDZ errors)
     function initDashboard() {
-      console.log("state on initDashboard", state);
-      // clear any leftover search filter so sidebar is always visible
-      searchTerm = "";
-      const employeeSearch = byId("employeeSearch");
-      if (employeeSearch) employeeSearch.value = "";
-
       // Elements
       const yearSelect = byId("yearSelect");
       const monthSelect = byId("monthSelect");
+      const employeeSearch = byId("employeeSearch");
       const sidebarEmployees = byId("sidebarEmployees");
-
-      if (!yearSelect || !monthSelect || !sidebarEmployees) {
-        console.error("Essential dashboard elements missing");
-      }
-
-      // indicate number of employees loaded
-      const empCount = Object.keys(state.employees || {}).length;
-      if (empCount === 0) {
-        // statusEl may not exist yet; we set later inside init
-        console.warn("No employees found in state");
-      } else {
-        console.log(empCount+" employees loaded");
-      }
 
       const batchDateEl = byId("batchDate");
       const batchEventEl = byId("batchEvent");
@@ -865,79 +940,7 @@
       const batchBody = byId("batchBody");
       const statusEl = byId("status");
 
-      const savedBatchesEl = byId("savedBatches");
       const employeeListEl = byId("employeeList");
-
-      // helper: group entries by batchId and render list
-      function renderSavedBatches() {
-        try {
-          const groups = new Map();
-          for (const e of state.entries) {
-            const id = e.batchId || "";
-            if (!id) continue;
-            if (!groups.has(id)) groups.set(id, { id, date: e.date, event: e.event || "", entries: [] });
-            groups.get(id).entries.push(e);
-          }
-          // sort by date desc
-          const list = Array.from(groups.values()).sort((a,b)=>b.date.localeCompare(a.date));
-          savedBatchesEl.innerHTML = list.map(g=>{
-            return `<div class="batchItem" data-batch="${g.id}">
-                      <div class="info">
-                        <span class="evt">${escapeHtml(g.event||"(kein Name)")}</span>
-                        <span class="dt">${escapeHtml(g.date)}</span>
-                      </div>
-                      <span class="count">${g.entries.length} Einträge</span>
-                    </div>`;
-          }).join("");
-          // attach click handlers
-          savedBatchesEl.querySelectorAll('.batchItem').forEach(el=>{
-            el.addEventListener('click',()=>{
-              loadBatch(el.getAttribute('data-batch'));
-            });
-          });
-        } catch (err) {
-          console.error("Fehler beim Rendern der gespeicherten Veranstaltungen", err);
-          savedBatchesEl.innerHTML = "<div class=\"muted smallMsg\">Fehler beim Laden</div>";
-        }
-      }
-
-      function loadBatch(batchId) {
-        // make sure any search filter is cleared when editing a saved batch
-        searchTerm = "";
-        if (employeeSearch) employeeSearch.value = "";
-        renderSidebarEmployees(sidebarEmployees, { activeEmployee: "" });
-
-        const batchEntries = state.entries.filter(e=>e.batchId===batchId);
-        if (!batchEntries.length) return;
-        currentBatchId = batchId;
-        batchDateEl.value = batchEntries[0].date;
-        batchEventEl.value = batchEntries[0].event || '';
-        batchBody.innerHTML = '';
-        for (const e of batchEntries) {
-          addBatchRow(batchBody);
-          const tr = batchBody.lastElementChild;
-          tr.querySelector('[data-k="employee"]').value = e.employee;
-          tr.querySelector('[data-k="hours"]').value = e.hours;
-          tr.querySelector('[data-k="travel"]').value = e.travelHours;
-          tr.querySelector('[data-k="charter"]').checked = e.charter;
-          tr.querySelector('[data-k="overnight"]').checked = e.overnight;
-          tr.querySelector('[data-k="note"]').value = e.note;
-        }
-        renumberBatchRows(batchBody);
-        saveBatchBtn.textContent = "Batch aktualisieren";
-        // ensure datalist includes all employees
-        renderEmployeeDatalist(employeeListEl);
-      }
-
-      function clearBatchForm() {
-        currentBatchId = null;
-        batchBody.innerHTML = '';
-        for (let i = 0; i < 10; i++) addBatchRow(batchBody);
-        batchDateEl.value = toISODate(new Date());
-        batchEventEl.value = '';
-        saveBatchBtn.textContent = "Veranstaltung anlegen";
-      }
-
 
       // Modal (Add employee)
       const addEmployeeBtn = byId("addEmployeeBtn");
@@ -947,6 +950,7 @@
       const createEmpBtn = byId("createEmpBtn");
       const newEmpName = byId("newEmpName");
       const newEmpRate = byId("newEmpRate");
+      const newEmpContractStart = byId("newEmpContractStart");
       const newEmpContractEnd = byId("newEmpContractEnd");
 
       ensureYearOptions(yearSelect);
@@ -957,18 +961,12 @@
       currentMonthYM = defaultMonthForYear(currentYear);
       ensureMonthOptions(monthSelect, currentYear, currentMonthYM);
 
-      // initial batch form
-      clearBatchForm();
+      // initial 10 rows
+      batchBody.innerHTML = "";
+      for (let i = 0; i < 10; i++) addBatchRow(batchBody);
 
       renderEmployeeDatalist(employeeListEl);
       renderSidebarEmployees(sidebarEmployees, { activeEmployee: "" });
-      renderSavedBatches();
-
-      // show employee count status
-      if (empCount === 0) {
-        const s = byId("status");
-        if (s) setStatus(s, "Keine Mitarbeiter in der Datenbank (neu oder korrumpiert).", true);
-      }
 
       // Events
       yearSelect.addEventListener("change", () => {
@@ -988,10 +986,7 @@
         renderSidebarEmployees(sidebarEmployees, { activeEmployee: "" });
       });
 
-      addRowBtn.addEventListener("click", () => {
-        if (!batchBody) { console.error("batchBody not found"); return; }
-        addBatchRow(batchBody);
-      });
+      addRowBtn.addEventListener("click", () => addBatchRow(batchBody));
 
       saveBatchBtn.addEventListener("click", () => {
         const batchDate = cleanText(batchDateEl.value);
@@ -1002,9 +997,6 @@
         const rows = Array.from(batchBody.querySelectorAll("tr"));
         const newEntries = [];
         const confirmedNewEmployees = new Set();
-
-        // determine batchId for this save
-        const batchId = currentBatchId || crypto.randomUUID();
 
         for (const tr of rows) {
           const employee = cleanText(getVal(tr, "employee"));
@@ -1029,7 +1021,6 @@
 
           newEntries.push({
             id: crypto.randomUUID(),
-            batchId,
             employee,
             date: batchDate,
             event: batchEvent,
@@ -1046,34 +1037,33 @@
           return setStatus(statusEl, "Keine Daten zum Speichern gefunden.", true);
         }
 
-        // if editing, remove old entries with same batchId first
-        if (currentBatchId) {
-          state.entries = state.entries.filter(e => e.batchId !== currentBatchId);
-        }
-
         state.entries.push(...newEntries);
         saveState(state);
 
-        // reset form
-        clearBatchForm();
+        // reset rows to 10
+        batchBody.innerHTML = "";
+        for (let i = 0; i < 10; i++) addBatchRow(batchBody);
+
         ensureYearOptions(yearSelect);
         setStatus(statusEl, `${newEntries.length} Einträge gespeichert.`, false);
         renderEmployeeDatalist(employeeListEl);
         renderSidebarEmployees(sidebarEmployees, { activeEmployee: "" });
-        renderSavedBatches();
       });
 
       // Modal handlers
-      addEmployeeBtn.addEventListener("click", () => openModal(addEmployeeModal, { newEmpName, newEmpRate, newEmpContractEnd }));
+      addEmployeeBtn.addEventListener("click", () => openModal(addEmployeeModal, { newEmpName, newEmpRate, newEmpContractStart, newEmpContractEnd }));
       closeModalBtn.addEventListener("click", () => closeModal(addEmployeeModal));
       cancelModalBtn.addEventListener("click", () => closeModal(addEmployeeModal));
       addEmployeeModal.addEventListener("click", (e) => {
         if (e.target === addEmployeeModal) closeModal(addEmployeeModal);
       });
 
+
+
       createEmpBtn.addEventListener("click", () => {
         const name = cleanText(newEmpName.value);
         const rate = clamp0(toNumber(newEmpRate.value));
+        const contractStart = cleanText(newEmpContractStart.value);
         const contractEnd = cleanText(newEmpContractEnd.value);
 
         if (!name) {
@@ -1082,15 +1072,14 @@
         }
 
         if (!state.employees[name]) {
-          console.log("creating employee", name);
-          state.employees[name] = { hourlyRate: 0, contractEnd: "", payoutCaps: {} };
-        } else {
-          console.log("updating employee", name);
+          state.employees[name] = { hourlyRate: 0, contractStart: "", contractEnd: "", payoutCaps: {} };
         }
 
         // Update fields (wenn leer gelassen: bestehendes behalten)
         if (Number.isFinite(rate)) state.employees[name].hourlyRate = rate;
+        if (contractStart !== "") state.employees[name].contractStart = contractStart;
         if (contractEnd !== "") state.employees[name].contractEnd = contractEnd;
+        trimCapsToContractEnd(state.employees[name]);
 
         saveState(state);
 
@@ -1102,18 +1091,9 @@
 
     /* -------------------- Employee Page -------------------- */
     function initEmployeePage() {
-      // clear sidebar filter when entering employee view
-      searchTerm = "";
-      const empSearch = document.querySelector("#employeePage #employeeSearch");
-      if (empSearch) empSearch.value = "";
-
       const root = document.getElementById("employeePage");
       const qs2 = new URLSearchParams(location.search);
       const employeeName = cleanText(qs2.get("name") || "");
-
-      // toggle state for months list
-      let showAllMonths = false;
-
 
       if (!employeeName || !state.employees[employeeName]) {
         location.replace(location.pathname);
@@ -1135,6 +1115,7 @@
       const createEmpBtn = document.getElementById("createEmpBtn");
       const newEmpName = document.getElementById("newEmpName");
       const newEmpRate = document.getElementById("newEmpRate");
+      const newEmpContractStart = document.getElementById("newEmpContractStart");
       const newEmpContractEnd = document.getElementById("newEmpContractEnd");
 
       // Main IDs aus deiner employee.html
@@ -1142,6 +1123,7 @@
       const subEl = root.querySelector("#employeeSub");
 
       const hourlyRateInput = root.querySelector("#hourlyRateInput");
+      const contractStartInput = root.querySelector("#contractStartInput");
       const contractEndInput = root.querySelector("#contractEndInput");
       const contractEndBadge = root.querySelector("#contractEndBadge");
 
@@ -1149,10 +1131,68 @@
       const kpiPaidYear = root.querySelector("#kpiPaidYear");
       const kpiSaldoYear = root.querySelector("#kpiSaldoYear");
       const kpiSaldoLabel = root.querySelector("#kpiSaldoLabel");
+      const kpiCharterYear = root.querySelector("#kpiCharterYear");
+      const kpiTravelYear = root.querySelector("#kpiTravelYear");
+      const kpiHoursYear = root.querySelector("#kpiHoursYear");
+      const kpiOvernightYear = root.querySelector("#kpiOvernightYear");
 
       const monthsContainer = root.querySelector("#monthsContainer");
-      const toggleMonthsBtn = root.querySelector("#toggleMonthsBtn");
+      const toggleAllMonthsBtn = root.querySelector("#toggleAllMonthsBtn");
       const deleteEmployeeBtn = root.querySelector("#deleteEmployeeBtn");
+
+      // contract elements
+      const contractClip = root.querySelector("#contractClip");
+      const contractFileInput = root.querySelector("#contractFileInput");
+      const contractFileInfo = root.querySelector("#contractFileInfo");
+      const removeContractBtn = root.querySelector("#removeContractBtn");
+
+      function refreshContractUI() {
+        const pdf = state.employees[employeeName].contractPdf;
+        if (pdf && pdf.data) {
+          contractFileInfo.textContent = pdf.name || "(unbekannt)";
+          removeContractBtn.style.display = "inline-block";
+          contractClip.classList.add("hasPdf");
+          contractClip.title = "Vertrag öffnen";
+        } else {
+          contractFileInfo.textContent = "Kein Vertrag";
+          removeContractBtn.style.display = "none";
+          contractClip.classList.remove("hasPdf");
+          contractClip.title = "Vertrag hinzufügen";
+        }
+      }
+
+      contractClip.addEventListener("click", () => {
+        const pdf = state.employees[employeeName].contractPdf;
+        if (pdf && pdf.data) {
+          window.open(pdf.data, "_blank");
+        } else {
+          contractFileInput.click();
+        }
+      });
+
+      contractFileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = reader.result;
+          ensureEmployee(employeeName);
+          state.employees[employeeName].contractPdf = { name: file.name, data: dataUrl };
+          saveState(state);
+          refreshContractUI();
+          renderSidebarEmployees(sidebarEmployees, { activeEmployee: employeeName });
+        };
+        reader.readAsDataURL(file);
+      });
+
+      removeContractBtn.addEventListener("click", () => {
+        if (!confirm("Vertrag wirklich entfernen?")) return;
+        delete state.employees[employeeName].contractPdf;
+        saveState(state);
+        refreshContractUI();
+        renderSidebarEmployees(sidebarEmployees, { activeEmployee: employeeName });
+      });
+
 
       // Year defaults from query
       currentYear = Number(qs2.get("year") || new Date().getFullYear());
@@ -1168,20 +1208,15 @@
 
       // Stammdaten
       hourlyRateInput.value = state.employees[employeeName].hourlyRate ? String(state.employees[employeeName].hourlyRate) : "";
+      contractStartInput.value = state.employees[employeeName].contractStart || "";
       contractEndInput.value = state.employees[employeeName].contractEnd || "";
       renderContractBadge(contractEndBadge, state.employees[employeeName].contractEnd || "");
 
       // Sidebar initial
       renderSidebarEmployees(sidebarEmployees, { activeEmployee: employeeName });
 
-      // toggle button handler
-      toggleMonthsBtn.addEventListener("click", () => {
-        showAllMonths = !showAllMonths;
-        toggleMonthsBtn.textContent = showAllMonths
-          ? "Nur aktuellen Monat anzeigen ▴"
-          : "Alle Monate anzeigen ▾";
-        renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer, showAllMonths);
-      });
+      // contract UI initial state
+      refreshContractUI();
 
       // Back
       backToDashboardBtn.addEventListener("click", () => {
@@ -1194,15 +1229,16 @@
         subEl.textContent = `Jahr: ${currentYear}`;
         currentMonthYM = defaultMonthForYear(currentYear);
         ensureMonthOptions(monthSelect, currentYear, currentMonthYM);
+        monthsContainer.dataset.showAll = "0";
 
-        renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer, showAllMonths);
+        renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer);
         renderSidebarEmployees(sidebarEmployees, { activeEmployee: employeeName });
       });
 
       monthSelect.addEventListener("change", () => {
         currentMonthYM = monthSelect.value;
+        renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer);
         renderSidebarEmployees(sidebarEmployees, { activeEmployee: employeeName });
-        // optional: scroll zum Monat - später
       });
 
       employeeSearch.addEventListener("input", () => {
@@ -1215,17 +1251,23 @@
         const val = clamp0(toNumber(hourlyRateInput.value));
         state.employees[employeeName].hourlyRate = Number.isFinite(val) ? val : 0;
         saveState(state);
-        renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer, showAllMonths);
+        renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer);
+        renderSidebarEmployees(sidebarEmployees, { activeEmployee: employeeName });
+      });
+
+      contractStartInput.addEventListener("change", () => {
+        state.employees[employeeName].contractStart = cleanText(contractStartInput.value);
+        saveState(state);
+        renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer);
         renderSidebarEmployees(sidebarEmployees, { activeEmployee: employeeName });
       });
 
       contractEndInput.addEventListener("change", () => {
         state.employees[employeeName].contractEnd = cleanText(contractEndInput.value);
+        trimCapsToContractEnd(state.employees[employeeName]);
         saveState(state);
         renderContractBadge(contractEndBadge, state.employees[employeeName].contractEnd || "");
-        // if end changed, re-propagate existing caps
-        ensureCapsPropagated(employeeName);
-        renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer, showAllMonths);
+        renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer);
         renderSidebarEmployees(sidebarEmployees, { activeEmployee: employeeName });
       });
 
@@ -1241,16 +1283,26 @@
       });
 
       // Modal handlers (Akte)
-      addEmployeeBtn.addEventListener("click", () => openModal(addEmployeeModal, { newEmpName, newEmpRate, newEmpContractEnd }));
+      addEmployeeBtn.addEventListener("click", () => openModal(addEmployeeModal, { newEmpName, newEmpRate, newEmpContractStart, newEmpContractEnd }));
       closeModalBtn.addEventListener("click", () => closeModal(addEmployeeModal));
       cancelModalBtn.addEventListener("click", () => closeModal(addEmployeeModal));
       addEmployeeModal.addEventListener("click", (e) => {
         if (e.target === addEmployeeModal) closeModal(addEmployeeModal);
       });
 
+      monthsContainer.dataset.showAll = "0";
+      if (toggleAllMonthsBtn) {
+        toggleAllMonthsBtn.addEventListener("click", () => {
+          const showAll = monthsContainer.dataset.showAll === "1";
+          monthsContainer.dataset.showAll = showAll ? "0" : "1";
+          renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer);
+        });
+      }
+
       createEmpBtn.addEventListener("click", () => {
         const name = cleanText(newEmpName.value);
         const rate = clamp0(toNumber(newEmpRate.value));
+        const contractStart = cleanText(newEmpContractStart.value);
         const contractEnd = cleanText(newEmpContractEnd.value);
 
         if (!name) {
@@ -1259,11 +1311,13 @@
         }
 
         if (!state.employees[name]) {
-          state.employees[name] = { hourlyRate: 0, contractEnd: "", payoutCaps: {} };
+          state.employees[name] = { hourlyRate: 0, contractStart: "", contractEnd: "", payoutCaps: {} };
         }
 
         if (Number.isFinite(rate)) state.employees[name].hourlyRate = rate;
+        if (contractStart !== "") state.employees[name].contractStart = contractStart;
         if (contractEnd !== "") state.employees[name].contractEnd = contractEnd;
+        trimCapsToContractEnd(state.employees[name]);
 
         saveState(state);
 
@@ -1273,7 +1327,7 @@
       });
 
       // First render
-      renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer, showAllMonths);
+      renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer);
     }
 
     /* -------------------- Rendering -------------------- */
@@ -1305,18 +1359,10 @@
         const emp = state.employees[name];
         const hr = Number(emp.hourlyRate || 0);
         const caps = emp.payoutCaps || {};
+        const contractStart = cleanText(emp.contractStart || "");
 
-        // compute raw stats for the year before ledger
-        const empEntries = entriesOfYear.filter(e => e.employee === name);
-        const totals = empEntries.reduce((acc, e) => {
-          acc.hours += Number(e.hours || 0);
-          acc.travel += Number(e.travelHours || 0);
-          acc.charter += e.charter ? 1 : 0;
-          acc.overnight += e.overnight ? 1 : 0;
-          return acc;
-        }, { hours:0, travel:0, charter:0, overnight:0 });
-
-        const ledger = buildMonthlyLedgerCapFixed(name, currentYear, entriesOfYear, hr, caps);
+        const contractEnd = cleanText(emp.contractEnd || "");
+        const ledger = buildMonthlyLedgerCapFixed(name, currentYear, entriesOfYear, hr, caps, contractStart, contractEnd);
         const m = ledger.find(x => x.ym === currentMonthYM) || { baseDue: 0, paid: 0, carryOut: 0 };
         const cap = clamp0(Number(caps?.[currentMonthYM] || 0));
         const saldo = m.carryOut;
@@ -1327,12 +1373,24 @@
         const isActive = name === activeEmployee;
         const href = `?page=employee&name=${encodeURIComponent(name)}&year=${encodeURIComponent(String(currentYear))}`;
 
+        const hasPdf = !!emp.contractPdf && !!emp.contractPdf.data;
+
+        // collect up to three unique event names from this year
+        const evts = entriesOfYear
+          .filter(e => e.employee === name && e.event)
+          .map(e => e.event);
+        const uniqueEvts = [...new Set(evts)];
+        const evtDisplay = uniqueEvts.slice(0, 3).join(", ");
+        const moreCount = uniqueEvts.length - 3;
+        const evtText = evtDisplay + (moreCount > 0 ? ` +${moreCount}` : "");
+
         return `
           <a class="empItem empLink ${isActive ? "active" : ""}" href="${href}">
             <div class="empTop">
               <div class="empName">
                 <span class="dot" style="background:${dotColor};"></span>
                 <span class="truncate">${escapeHtml(name)}</span>
+                ${hasPdf ? '<span class="contractIcon">📎</span>' : ''}
               </div>
               <div class="saldo ${saldoClass}">${fmt(saldo)} €</div>
             </div>
@@ -1340,188 +1398,130 @@
               <div>Soll: <strong class="highlight">${fmt(m.baseDue)} €</strong></div>
               <div>Cap: <strong class="highlight">${cap > 0 ? `${fmt(cap)} €` : "—"}</strong></div>
             </div>
-            <div class="empStats">
-              <div>Std: ${fmt(totals.hours)} h</div>
-              <div>Fahrt: ${fmt(totals.travel)} h</div>
-              <div>Charter: ${totals.charter}</div>
-              <div>Übern.: ${totals.overnight}</div>
-            </div>
+            ${evtText ? `<div class="empEvents">${escapeHtml(evtText)}</div>` : ""}
           </a>
         `;
       }).join("");
     }
 
-    // ensure any earlier cap value propagates forward (called before rendering)
-// also remove any caps that fall after the contract end date
-function ensureCapsPropagated(employeeName) {
+    function renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer) {
   const emp = state.employees[employeeName];
-  if (!emp) return;
-
-  // drop any caps past the contract termination
-  if (emp.contractEnd) {
-    const endYM = `${emp.contractEnd.slice(0,4)}-${emp.contractEnd.slice(5,7)}`;
-    for (const ym of Object.keys(emp.payoutCaps || {})) {
-      if (ym > endYM) {
-        delete emp.payoutCaps[ym];
-      }
-    }
-  }
-
+  const hr = Number(emp.hourlyRate || 0);
   const caps = emp.payoutCaps || {};
-  const yms = Object.keys(caps).sort();
-  const first = yms.find(ym => Number(caps[ym]) > 0);
-  if (first) propagateCap(employeeName, first, caps[first]);
+  const contractStart = cleanText(emp.contractStart || "");
+  const entriesOfYear = state.entries.filter(e => yearOf(e.date) === currentYear);
+  const entriesEmpYear = entriesOfYear.filter(e => e.employee === employeeName);
 
-  // if we mutated the caps object above we should persist
-  saveState(state);
-}
+  const contractEnd = cleanText(emp.contractEnd || "");
+  const ledger = buildMonthlyLedgerCapFixed(employeeName, currentYear, entriesOfYear, hr, caps, contractStart, contractEnd);
 
-function propagateCap(empName, fromYM, val) {
-  const emp = state.employees[empName];
-  if (!emp) return;
-  emp.payoutCaps = emp.payoutCaps || {};
-  const caps = emp.payoutCaps;
-  const endYM = emp.contractEnd ? `${emp.contractEnd.slice(0,4)}-${emp.contractEnd.slice(5,7)}` : null;
-
-  let [y, m] = fromYM.split("-").map(Number);
-  // start with next month
-  m++;
-  if (m > 12) { m = 1; y++; }
-
-  const maxYear = endYM ? Number(endYM.slice(0,4)) : new Date().getFullYear() + 5;
-
-  while (true) {
-    const ym = `${y}-${String(m).padStart(2, "0")}`;
-    // stop if we've hit contract end
-    if (endYM && ym > endYM) break;
-    if (y > maxYear) break;
-
-    if (!caps[ym] || caps[ym] === 0) {
-      caps[ym] = val;
-    }
-
-    m++;
-    if (m > 12) { m = 1; y++; }
-  }
-}
-
-function renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer, showAllMonths = false) {
-      const emp = state.employees[employeeName];
-      const hr = Number(emp.hourlyRate || 0);
-      const caps = emp.payoutCaps || {};
-      const entriesOfYear = state.entries.filter(e => yearOf(e.date) === currentYear);
-
-      // propagate any stored cap forward before calculating ledger
-      ensureCapsPropagated(employeeName);
-
-      const ledger = buildMonthlyLedgerCapFixed(employeeName, currentYear, entriesOfYear, hr, caps);
-
-      // only display current month if collapsed
-      const displayLedger = showAllMonths
-        ? ledger
-        : ledger.filter(m => m.ym === currentMonthYM);
-
-      const sumDue = ledger.reduce((s, m) => s + m.baseDue, 0);
-      const sumPaid = ledger.reduce((s, m) => s + m.paid, 0);
-      const saldoEnd = ledger.length ? ledger[ledger.length - 1].carryOut : 0;
-
-  // aggregate raw statistics from entries
-  const yearTotals = entriesOfYear.reduce((acc, e) => {
-    if (e.employee === employeeName) {
-      acc.hours += Number(e.hours || 0);
-      acc.travel += Number(e.travelHours || 0);
-      acc.charter += e.charter ? 1 : 0;
-      acc.overnight += e.overnight ? 1 : 0;
-    }
-    return acc;
-  }, { hours:0, travel:0, charter:0, overnight:0 });
+  const sumDue = ledger.reduce((s, m) => s + m.baseDue, 0);
+  const sumPaid = ledger.reduce((s, m) => s + m.paid, 0);
+  const saldoEnd = ledger.length ? ledger[ledger.length - 1].carryOut : 0;
 
   kpiDueYear.textContent = `${fmt(sumDue)} €`;
   kpiPaidYear.textContent = `${fmt(sumPaid)} €`;
 
-  // update the new stat KPIs if they exist
-  const kpiHours = document.getElementById("kpiHoursYear");
-  const kpiTravel = document.getElementById("kpiTravelYear");
-  const kpiCharter = document.getElementById("kpiCharterYear");
-  const kpiOvernight = document.getElementById("kpiOvernightYear");
-  if (kpiHours) kpiHours.textContent = `${fmt(yearTotals.hours)} h`;
-  if (kpiTravel) kpiTravel.textContent = `${fmt(yearTotals.travel)} h`;
-  if (kpiCharter) kpiCharter.textContent = `${yearTotals.charter}`;
-  if (kpiOvernight) kpiOvernight.textContent = `${yearTotals.overnight}`;
-      if (saldoEnd < 0) {
-        kpiSaldoYear.classList.add("saldo", "neg");
-        kpiSaldoLabel.textContent = "Vorschuss (−)";
-      } else if (saldoEnd > 0) {
-        kpiSaldoYear.classList.add("saldo", "pos");
-        kpiSaldoLabel.textContent = "Offen (+)";
-      } else {
-        kpiSaldoYear.classList.add("saldo", "zero");
-        kpiSaldoLabel.textContent = "Ausgeglichen";
-      }
+  // saldo styling on KPI
+  kpiSaldoYear.textContent = `${fmt(saldoEnd)} €`;
+  kpiSaldoYear.classList.remove("pos", "neg", "zero");
+  if (saldoEnd < 0) {
+    kpiSaldoYear.classList.add("saldo", "neg");
+    kpiSaldoLabel.textContent = "Vorschuss (−)";
+  } else if (saldoEnd > 0) {
+    kpiSaldoYear.classList.add("saldo", "pos");
+    kpiSaldoLabel.textContent = "Offen (+)";
+  } else {
+    kpiSaldoYear.classList.add("saldo", "zero");
+    kpiSaldoLabel.textContent = "Ausgeglichen";
+  }
 
-      monthsContainer.innerHTML = displayLedger.map(m => {
-        const cap = clamp0(Number(caps?.[m.ym] || 0));
+  const charterCount = entriesEmpYear.reduce((s, e) => s + (e.charter ? 1 : 0), 0);
+  const travelHours = entriesEmpYear.reduce((s, e) => s + clamp0(Number(e.travelHours || 0)), 0);
+  const workHours = entriesEmpYear.reduce((s, e) => s + clamp0(Number(e.hours || 0)), 0);
+  const overnightCount = entriesEmpYear.reduce((s, e) => s + (e.overnight ? 1 : 0), 0);
 
-        const saldoClass = m.carryOut < 0 ? "neg" : (m.carryOut > 0 ? "pos" : "zero");
+  const kpiCharterYear = document.getElementById("kpiCharterYear");
+  const kpiTravelYear = document.getElementById("kpiTravelYear");
+  const kpiHoursYear = document.getElementById("kpiHoursYear");
+  const kpiOvernightYear = document.getElementById("kpiOvernightYear");
 
-        return `
-          <details class="month">
-            <summary>
-              <span>${escapeHtml(m.label)} <span class="subdued">(${escapeHtml(m.ym)})</span></span>
-              <span class="strongish">
-                Soll ${fmt(m.baseDue)} € · Auszahlung ${fmt(m.paid)} € ·
-                <span class="saldo ${saldoClass}">Saldo ${fmt(m.carryOut)} €</span>
-              </span>
-            </summary>
+  if (kpiCharterYear) kpiCharterYear.textContent = `${fmt(charterCount * CHARTER_FLAT)} €`;
+  if (kpiTravelYear) kpiTravelYear.textContent = `${fmt(travelHours)} h`;
+  if (kpiHoursYear) kpiHoursYear.textContent = `${fmt(workHours)} h`;
+  if (kpiOvernightYear) kpiOvernightYear.textContent = String(overnightCount);
 
-            <div class="monthBody">
-              <div class="capRow">
-                <div class="field">
-                  <div class="label">Cap (fixe Auszahlung) €</div>
-                  <input
-                    class="in"
-                    type="number" step="0.01" min="0"
-                    data-cap="1"
-                    data-emp="${escapeHtml(employeeName)}"
-                    data-ym="${escapeHtml(m.ym)}"
-                    value="${cap > 0 ? String(cap) : ""}"
-                    placeholder="z.B. 600"
-                  />
-                </div>
+  const toggleAllMonthsBtn = document.getElementById("toggleAllMonthsBtn");
+  const showAll = monthsContainer.dataset.showAll === "1";
+  if (toggleAllMonthsBtn) {
+    toggleAllMonthsBtn.textContent = showAll ? "Nur aktueller Monat" : "Alle Monate aufklappen";
+  }
 
-                <div class="pillRow">
-                  <span class="pill">Auszahlung: <strong>${fmt(m.paid)} €</strong></span>
-                  <span class="pill">Saldo: <strong class="saldo ${saldoClass}">${fmt(m.carryOut)} €</strong></span>
-                </div>
-              </div>
+  const visibleMonths = showAll ? ledger : ledger.filter(x => x.ym === currentMonthYM);
+  const monthsToRender = visibleMonths.length ? visibleMonths : (ledger[0] ? [ledger[0]] : []);
 
-              ${m.entries.length ? `
-                <div class="overflow-auto mt-10">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Datum</th>
-                        <th>Event</th>
-                        <th class="right">Stunden</th>
-                        <th class="right">Fahrtzeit</th>
-                        <th class="center">Charter</th>
-                        <th class="center">Übernachtung</th>
-                        <th class="right">Lohn (€)</th>
-                        <th class="right">Pauschalen (€)</th>
-                        <th class="right">Summe (€)</th>
-                        <th>Notiz</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      ${m.entries.map(e => `
-                        <tr>
-                          <td>${escapeHtml(e.date)}</td>
-                          <td>${escapeHtml(e.event || "")}</td>
-                          <td class="right">${fmt(e.hours)}</td>
-                          <td class="right">${fmt(e.travelHours)}</td>
-                          <td class="center">${e.charter ? "Ja" : "Nein"}</td>
-                          <td class="center">${e.overnight ? "Ja" : "Nein"}</td>
-                          <td class="right">${fmt(e._wagePart)} €</td>
+  monthsContainer.innerHTML = monthsToRender.map(m => {
+    const cap = clamp0(Number(caps?.[m.ym] || 0));
+    const saldoClass = m.carryOut < 0 ? "neg" : (m.carryOut > 0 ? "pos" : "zero");
+
+    return `
+      <details class="month" open>
+        <summary>
+          <span>${escapeHtml(m.label)} <span class="subdued">(${escapeHtml(m.ym)})</span></span>
+          <span class="strongish">
+            Soll ${fmt(m.baseDue)} € · Auszahlung ${fmt(m.paid)} € ·
+            <span class="saldo ${saldoClass}">Saldo ${fmt(m.carryOut)} €</span>
+          </span>
+        </summary>
+
+        <div class="monthBody">
+          <div class="capRow">
+            <div class="field">
+              <div class="label">Cap (fixe Auszahlung) €</div>
+              <input
+                class="in"
+                type="number" step="0.01" min="0"
+                data-cap="1"
+                data-emp="${escapeHtml(employeeName)}"
+                data-ym="${escapeHtml(m.ym)}"
+                value="${cap > 0 ? String(cap) : ""}"
+                placeholder="z.B. 600"
+              />
+            </div>
+
+            <div class="pillRow">
+              <span class="pill">Auszahlung: <strong>${fmt(m.paid)} €</strong></span>
+              <span class="pill">Saldo: <strong class="saldo ${saldoClass}">${fmt(m.carryOut)} €</strong></span>
+            </div>
+          </div>
+
+          ${m.entries.length ? `
+            <div class="overflow-auto mt-10">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Datum</th>
+                    <th>Event</th>
+                    <th class="right">Stunden</th>
+                    <th class="right">Fahrtzeit</th>
+                    <th class="center">Charter</th>
+                    <th class="center">Übernachtung</th>
+                    <th class="right">Lohn (€)</th>
+                    <th class="right">Pauschalen (€)</th>
+                    <th class="right">Summe (€)</th>
+                    <th>Notiz</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${m.entries.map(e => `
+                    <tr>
+                      <td>${escapeHtml(e.date)}</td>
+                      <td>${escapeHtml(e.event || "")}</td>
+                      <td class="right">${fmt(e.hours)}</td>
+                      <td class="right">${fmt(e.travelHours)}</td>
+                      <td class="center">${e.charter ? "Ja" : "Nein"}</td>
+                      <td class="center">${e.overnight ? "Ja" : "Nein"}</td>
+                      <td class="right">${fmt(e._wagePart)} €</td>
                       <td class="right">${fmt(e._allowPart)} €</td>
                       <td class="right"><strong>${fmt(e._lineTotal)} €</strong></td>
                       <td>${escapeHtml(e.note || "")}</td>
@@ -1546,19 +1546,17 @@ function renderEmployeeAkte(employeeName, kpiDueYear, kpiPaidYear, kpiSaldoYear,
       ensureEmployee(empName);
       state.employees[empName].payoutCaps = state.employees[empName].payoutCaps || {};
       if (Number.isFinite(val) && val > 0) {
-        state.employees[empName].payoutCaps[ym] = val;
-        // propagate this cap forward to subsequent months
-        propagateCap(empName, ym, val);
+        // Cap applies from selected month forward, never to past months.
+        propagateCapForward(empName, ym, val);
       } else {
         state.employees[empName].payoutCaps[ym] = 0;
       }
 
       saveState(state);
-      renderEmployeeAkte(empName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer, showAllMonths);
+      renderEmployeeAkte(empName, kpiDueYear, kpiPaidYear, kpiSaldoYear, kpiSaldoLabel, monthsContainer);
     });
   });
 }
-
 /* -------------------- Batch rows -------------------- */
 
 function addBatchRow(batchBody) {
@@ -1615,17 +1613,15 @@ function renumberBatchRows(batchBody) {
 
 /* -------------------- Ledger (Cap fixed payout) -------------------- */
 
-function buildMonthlyLedgerCapFixed(employee, year, entriesYear, hourlyRate, payoutCaps) {
+function buildMonthlyLedgerCapFixed(employee, year, entriesYear, hourlyRate, payoutCaps, contractStart = "", contractEnd = "") {
   const months = [];
   let carry = 0;
-  // figure out contract boundary if any
-  const emp = state.employees[employee] || {};
-  const endYM = emp.contractEnd ? `${emp.contractEnd.slice(0,4)}-${emp.contractEnd.slice(5,7)}` : null;
+  const contractStartYM = contractStart ? String(contractStart).slice(0, 7) : "";
+  const contractEndYM = contractEnd ? String(contractEnd).slice(0, 7) : "";
 
   for (let m = 1; m <= 12; m++) {
     const ym = `${year}-${String(m).padStart(2, "0")}`;
 
-    // compute list regardless; we'll zero-pay later if past contract
     const list = entriesYear
       .filter(e => e.employee === employee && String(e.date || "").startsWith(ym))
       .sort((a, b) => String(a.date).localeCompare(String(b.date)));
@@ -1643,18 +1639,15 @@ function buildMonthlyLedgerCapFixed(employee, year, entriesYear, hourlyRate, pay
     const payAllow = list.reduce((s, e) => s + (e._allowPart || 0), 0);
     const baseDue = payHours + payAllow;
 
-    // cap from stored data
     const cap = clamp0(Number(payoutCaps?.[ym] || 0));
+    const payoutEnabled =
+      (!contractStartYM || ym >= contractStartYM) &&
+      (!contractEndYM || ym <= contractEndYM);
 
-    // default paid calculation
-    let paid;
-    if (endYM && ym > endYM) {
-      // after contract end: no payout at all
-      paid = 0;
-    } else if (cap > 0) {
-      paid = cap;
-    } else {
-      paid = Math.max(0, carry + baseDue);
+    let paid = 0;
+    if (payoutEnabled) {
+      if (cap > 0) paid = cap;
+      else paid = Math.max(0, carry + baseDue);
     }
 
     const carryOut = carry + baseDue - paid;
@@ -1676,6 +1669,53 @@ function buildMonthlyLedgerCapFixed(employee, year, entriesYear, hourlyRate, pay
   return months;
 }
 
+function nextYM(ym) {
+  const m = String(ym || "").match(/^(\d{4})-(\d{2})$/);
+  if (!m) return "";
+  let y = Number(m[1]);
+  let mo = Number(m[2]);
+  mo += 1;
+  if (mo > 12) {
+    mo = 1;
+    y += 1;
+  }
+  return `${y}-${String(mo).padStart(2, "0")}`;
+}
+
+function propagateCapForward(empName, fromYM, value) {
+  ensureEmployee(empName);
+  const emp = state.employees[empName];
+  emp.payoutCaps = emp.payoutCaps || {};
+
+  const startYM = String(fromYM || "").slice(0, 7);
+  const capVal = clamp0(Number(value));
+  if (!/^\d{4}-\d{2}$/.test(startYM) || !(capVal > 0)) return;
+
+  const contractEndYM = cleanText(emp.contractEnd || "").slice(0, 7);
+  const fallbackEndYM = `${Number(startYM.slice(0, 4)) + 5}-12`;
+  const endYM = /^\d{4}-\d{2}$/.test(contractEndYM) ? contractEndYM : fallbackEndYM;
+
+  let ym = startYM;
+  while (ym && ym <= endYM) {
+    emp.payoutCaps[ym] = capVal;
+    ym = nextYM(ym);
+  }
+
+  trimCapsToContractEnd(emp);
+}
+
+function trimCapsToContractEnd(emp) {
+  if (!emp || !emp.payoutCaps || typeof emp.payoutCaps !== "object") return;
+  const endYM = cleanText(emp.contractEnd || "").slice(0, 7);
+  if (!/^\d{4}-\d{2}$/.test(endYM)) return;
+
+  for (const ym of Object.keys(emp.payoutCaps)) {
+    if (ym > endYM) {
+      delete emp.payoutCaps[ym];
+    }
+  }
+}
+
 /* -------------------- Employees & state -------------------- */
 
 function ensureEmployee(name, { confirmCreate = false } = {}) {
@@ -1686,7 +1726,7 @@ function ensureEmployee(name, { confirmCreate = false } = {}) {
     if (!ok) return false;
   }
 
-  state.employees[name] = { hourlyRate: 0, contractEnd: "", payoutCaps: {} };
+  state.employees[name] = { hourlyRate: 0, contractStart: "", contractEnd: "", payoutCaps: {} };
   saveState(state);
   return true;
 }
@@ -1699,7 +1739,15 @@ function normalizeStateShape() {
     const emp = state.employees[name] || {};
     if (typeof emp.hourlyRate !== "number") emp.hourlyRate = clamp0(Number(emp.hourlyRate || 0));
     if (!emp.payoutCaps || typeof emp.payoutCaps !== "object") emp.payoutCaps = {};
+    if (typeof emp.contractStart !== "string") emp.contractStart = emp.contractStart ? String(emp.contractStart) : "";
     if (typeof emp.contractEnd !== "string") emp.contractEnd = emp.contractEnd ? String(emp.contractEnd) : "";
+    trimCapsToContractEnd(emp);
+    // normalize contract PDF structure if present
+    if (emp.contractPdf && typeof emp.contractPdf === "object") {
+      if (typeof emp.contractPdf.data !== "string") {
+        delete emp.contractPdf;
+      }
+    }
     state.employees[name] = emp;
   }
 
@@ -1761,13 +1809,14 @@ function renderContractBadge(badgeEl, end) {
 
 /* -------------------- Modal helpers -------------------- */
 
-function openModal(modalEl, { newEmpName, newEmpRate, newEmpContractEnd } = {}) {
+function openModal(modalEl, { newEmpName, newEmpRate, newEmpContractStart, newEmpContractEnd } = {}) {
   if (!modalEl) return;
   modalEl.style.display = "flex";
   modalEl.setAttribute("aria-hidden", "false");
 
   if (newEmpName) newEmpName.value = "";
   if (newEmpRate) newEmpRate.value = "";
+  if (newEmpContractStart) newEmpContractStart.value = "";
   if (newEmpContractEnd) newEmpContractEnd.value = "";
 
   if (newEmpName) newEmpName.focus();
@@ -1807,29 +1856,14 @@ function getChecked(tr, key) {
 
 function loadState() {
   try {
-    // try current key first
-    let raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      // attempt migration from previous version if present
-      const oldKey = "eventTool.v4.data";
-      const oldRaw = localStorage.getItem(oldKey);
-      if (oldRaw) {
-        try {
-          JSON.parse(oldRaw); // verify
-          raw = oldRaw;
-          localStorage.setItem(STORAGE_KEY, raw);
-          console.log("Migrated data from", oldKey, "to", STORAGE_KEY);
-        } catch {}
-      }
-    }
+    const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { entries: [], employees: {} };
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object") return { entries: [], employees: {} };
     parsed.entries = Array.isArray(parsed.entries) ? parsed.entries : [];
     parsed.employees = parsed.employees && typeof parsed.employees === "object" ? parsed.employees : {};
     return parsed;
-  } catch (err) {
-    console.error("Error loading state, resetting", err);
+  } catch {
     return { entries: [], employees: {} };
   }
 }
@@ -1896,3 +1930,8 @@ function ymOfDate(d) {
 </script>
 </body>
 </html>
+
+
+
+
+
