@@ -617,6 +617,10 @@
               <div class="flex gap-10 mt-10">
                 <button id="addEmployeeBtn" class="btn primary w-full" type="button">+ Mitarbeiter hinzufügen</button>
               </div>
+              <div class="flex gap-10 mt-10">
+                <button data-export-backup="1" class="btn ghost w-full" type="button">Daten exportieren</button>
+                <button data-import-backup="1" class="btn ghost w-full" type="button">Daten importieren</button>
+              </div>
             </div>
           </div>
         </div>
@@ -711,6 +715,10 @@
             <input id="employeeSearch" class="ctrl" placeholder="Name eintippen..." />
             <div class="flex gap-10 mt-10">
               <button id="addEmployeeBtn" class="btn ghost w-full" type="button">+ Mitarbeiter hinzufügen</button>
+            </div>
+            <div class="flex gap-10 mt-10">
+              <button data-export-backup="1" class="btn ghost w-full" type="button">Daten exportieren</button>
+              <button data-import-backup="1" class="btn ghost w-full" type="button">Daten importieren</button>
             </div>
           </div>
         </div>
@@ -829,6 +837,7 @@
 
   <!-- Datalist -->
   <datalist id="employeeList"></datalist>
+  <input id="backupImportInput" type="file" accept="application/json,.json" style="display:none;" />
 
   <!-- Modal: Add Employee -->
   <div id="addEmployeeModal" class="modalOverlay" aria-hidden="true">
@@ -907,6 +916,7 @@
     function init() {
       normalizeStateShape();
       showPage(PAGE);
+      bindBackupControls();
 
       if (PAGE === "dashboard") initDashboard();
       if (PAGE === "employee") initEmployeePage();
@@ -923,6 +933,26 @@
 
       dash.classList.toggle("hidden", p !== "dashboard");
       emp.classList.toggle("hidden", p !== "employee");
+    }
+
+    function bindBackupControls() {
+      const importInput = byId("backupImportInput");
+      if (!importInput) return;
+
+      document.querySelectorAll('[data-export-backup="1"]').forEach(btn => {
+        btn.addEventListener("click", () => exportStateBackup());
+      });
+
+      document.querySelectorAll('[data-import-backup="1"]').forEach(btn => {
+        btn.addEventListener("click", () => importInput.click());
+      });
+
+      importInput.addEventListener("change", async () => {
+        const file = importInput.files && importInput.files[0];
+        importInput.value = "";
+        if (!file) return;
+        await importStateBackupFile(file);
+      });
     }
 
     /* -------------------- Dashboard -------------------- */
@@ -1850,6 +1880,57 @@ function getVal(tr, key) {
 function getChecked(tr, key) {
   const el = tr.querySelector(`[data-k="${key}"]`);
   return el ? !!el.checked : false;
+}
+
+/* -------------------- Backup import/export -------------------- */
+
+function exportStateBackup() {
+  try {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      storageKey: STORAGE_KEY,
+      data: state
+    };
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const ts = toISODate(new Date()).replaceAll("-", "");
+    a.href = url;
+    a.download = `event-tool-backup-${ts}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error(err);
+    alert("Export fehlgeschlagen.");
+  }
+}
+
+async function importStateBackupFile(file) {
+  try {
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    const incoming = parsed && parsed.data ? parsed.data : parsed;
+
+    if (!incoming || typeof incoming !== "object" || !Array.isArray(incoming.entries) || typeof incoming.employees !== "object") {
+      alert("Ungültige Backup-Datei.");
+      return;
+    }
+
+    const ok = confirm("Backup importieren und aktuelle Daten überschreiben?");
+    if (!ok) return;
+
+    state = incoming;
+    normalizeStateShape();
+    saveState(state);
+    alert("Import erfolgreich. Seite wird neu geladen.");
+    location.reload();
+  } catch (err) {
+    console.error(err);
+    alert("Import fehlgeschlagen. Datei ist kein gültiges JSON.");
+  }
 }
 
 /* -------------------- Storage -------------------- */
